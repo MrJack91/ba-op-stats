@@ -57,7 +57,7 @@ class Worker {
         // read and parse csv
         $row = 0;
         if (($handle = fopen('Ressources/Raw/Daten_01012006_bis_30062016.csv', 'r')) !== FALSE) {
-            while (($data = fgetcsv($handle, 10000, ';')) !== FALSE AND $row <= 10) {
+            while (($data = fgetcsv($handle, 10000, ';')) !== FALSE AND $row <= 100) {
                 $row++;
                 // skip head line
                 if ($row == 1) continue;
