@@ -74,7 +74,7 @@ class DbMySql {
             }
         }
 
-        $query = $this->host->prepare($sql);
+        $query = $this->host->prepare($sql); // there must'n have minus in field names
         $query->execute($params);
         if ($query->errorCode() > 0) {
             echo '<span style="background-color: red;">Error in SQL:</span>';

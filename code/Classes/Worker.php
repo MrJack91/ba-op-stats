@@ -57,15 +57,16 @@ class Worker {
         // read and parse csv
         $row = 0;
         if (($handle = fopen('Ressources/Raw/Daten_01012006_bis_30062016.csv', 'r')) !== FALSE) {
-            while (($data = fgetcsv($handle, 10000, ';')) !== FALSE AND $row <= 100) {
+        // if (($handle = fopen('Ressources/Raw/test_sgar.csv', 'r')) !== FALSE) {
+            while (($data = fgetcsv($handle, 10000, ';')) !== FALSE AND $row <= 1000000) {
                 $row++;
                 // skip head line
                 if ($row == 1) continue;
                 $num = count($data);
-                echo "<p> $num fields in line $row: <br /></p>\n";
+                // echo "<p> $num fields in line $row: <br /></p>\n";
 
                 // insert all records
-                $this->dbHelper->importOp($data);
+                $this->dbHelper->importOp($data, $row);
 
                 /*
                 for ($c=0; $c < $num; $c++) {
