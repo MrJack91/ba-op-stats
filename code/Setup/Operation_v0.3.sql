@@ -3,7 +3,7 @@
 -- http://www.phpmyadmin.net
 --
 -- Host: localhost:3306
--- Erstellungszeit: 01. Aug 2016 um 18:05
+-- Erstellungszeit: 20. Sep 2016 um 16:03
 -- Server-Version: 5.5.42
 -- PHP-Version: 5.6.10
 
@@ -35,7 +35,7 @@ CREATE TABLE `Operation` (
   `Reihe` tinyint(4) UNSIGNED NOT NULL,
   `FolgeOP` tinyint(4) UNSIGNED NOT NULL,
   `hasAnesthesia` tinyint(4) UNSIGNED NOT NULL,
-  `Dringlichkeit` tinyint(4) UNSIGNED NOT NULL,
+  `Dringlichkeit` tinyint(4) UNSIGNED DEFAULT NULL,
   `Zeitprognose` int(11) UNSIGNED NOT NULL,
   `Bestellzeit` datetime DEFAULT NULL,
   `ANAStart` datetime DEFAULT NULL,
@@ -101,7 +101,7 @@ ALTER TABLE `Operation`
 -- AUTO_INCREMENT für Tabelle `Operation`
 --
 ALTER TABLE `Operation`
-  MODIFY `ops_id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT;
+  MODIFY `ops_id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=399020;
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;

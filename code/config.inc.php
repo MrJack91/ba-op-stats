@@ -12,8 +12,11 @@ $config->db->db = 'ba_op_stats';
 $config->db->utf8Decode = false;
 
 // general
-/*
 $config->general = new stdClass();
+$config->general->importAmount = 1;
+// $config->general->importAmount = 1000000;
+$config->general->doRealCommit = false;
+/*
 $config->general->fileSource = '/data/tx_eosdirectory/';
 $config->general->fileTarget = 'public_html/uploads/tx_ossdirectory/imported'; // change this must also be changed in code -> relative path DbHelper/importFirm()
 */

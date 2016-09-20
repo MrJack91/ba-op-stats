@@ -30,6 +30,8 @@ class DbHelper {
 
 	protected $fieldParse = array();
 
+	protected $stateFlag = 0;
+
 	public function trim($val) {
 		return trim($val);
 	}
@@ -84,6 +86,7 @@ class DbHelper {
 			*/
 		}
 	}
+
 
 	/**
 	 * DbHelper constructor.
@@ -205,6 +208,7 @@ class DbHelper {
 			}),
 
 			'Dringlichkeit' => array(function ($val, $fieldName, &$values) {
+				// DONE: add case if this field is completly missing
 				switch ($val) {
 					case 'N!':
 						return 4;
@@ -230,21 +234,44 @@ class DbHelper {
 					}
 					return $val;
 				} else {
-					// there was a transpose offset sgarcode before -> correct
-					echo 'sgarCode mismatch: ' . $val . '<br>';
+					// note: fix sgarcode3 is missing. skip all cols by one
+					/*
+					echo 'Verlegungsort mismatch: ' . $val . ' (so SGARCode3 was filled with null)<br>';
+					$this->stateFlag = 1;
+					*/
 					// reset pointers, rebuild
+					$values['SGARCode3'] = null; // set sgarcode 3 to null
+					// go one col back and add verlegungsort again
+					$colPos -= 2;       // one col is missing, this was empty, so sub 2
+					$colParsePos -= 1;  // next col is
+				}
+				return null;
+			}),
+
+			'Modus' => array(function ($val, $fieldName, &$values, &$opCsv, &$colPos, &$colParsePos) {
+				$valid = array('A/S', 'amb', 'stat');
+				if (in_array($val, $valid)) {
+					return $val;
+				} else {
+					// there was a transpose offset before Modus (mostly same as for verlegungsort)
+					echo 'Modus mismatch: ' . $val . '<br>';
+					// reset pointers, rebuild
+					$this->stateFlag = 1;
+					/*
 					$values['SGARCode3'] = null;
 					$colPos -= 2;
 					$colParsePos -= 1;
+					*/
 				}
-				return null; //
+				return null;
 			}),
 
 			'Relevantes' => array(function ($val, $fieldName, &$values, &$csv) {
 				$booleans = explode('/', $val);
 				$addDbFields = array('rel_anamie', 'rel_diabetes', 'rel_adipositas', 'rel_gerinnungsstoerung', 'rel_allergie', 'rel_immunsuppression', 'rel_medikamente', 'rel_malignom', 'rel_schwangerschaft');
 				$i = 0;
-				if (count($booleans) == 9) {
+				// if (count($booleans) == 9) {
+				if (count($booleans) >= 9) {
 					foreach ($addDbFields as $addDbField) {
 						if (isset($booleans[$i])) {
 							$tempVal = $booleans[$i];
@@ -379,7 +406,7 @@ class DbHelper {
 	 * @return DbMySql|null
 	 */
 	public function importOp($opCsv, $row) {
-
+		$this->stateFlag = 0;
 		$values = array(
 			'csvLinePos' => $row,
 			'csvData' => json_encode($opCsv)
@@ -390,6 +417,7 @@ class DbHelper {
 		while ($colParsePos < count($this->fieldMap)) {
 			$dbField = $this->fieldMap[$colPos];
 			$dbFieldParse = $this->fieldMap[$colParsePos];
+
 			if (isset($opCsv[$colPos])) {
 				// ignore cols with empty definition
 				if ($dbFieldParse !== '' ) {
@@ -413,16 +441,22 @@ class DbHelper {
 			} else {
 				echo 'undefined dbField: ' . $dbFieldParse . ' for pos ' . $colPos . '<br>';
 			}
+
 			$colPos++;
 			$colParsePos++;
 		}
 
-		// TODO: add freitext with all remaining cols
+		// add freitext with all remaining cols
+		$remainingCols = array_slice($opCsv, $colPos);
+		$remainingCols = array_filter($remainingCols);
+		$values['Freitext'] = implode(';', $remainingCols);
 
 		// TODO: add calculated helper fields: bmi, op duration, last operation of same patient...
 
-		// var_dump($values);
 
+		if ($this->stateFlag == 1) {
+			var_dump($values);
+		}
 
 		$this->worker->db->insert('Operation', $values);
 		$uid = $this->worker->counter++;

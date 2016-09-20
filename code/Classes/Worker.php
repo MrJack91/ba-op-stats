@@ -57,13 +57,18 @@ class Worker {
         // read and parse csv
         $row = 0;
         if (($handle = fopen('Ressources/Raw/Daten_01012006_bis_30062016.csv', 'r')) !== FALSE) {
+        // if (($handle = fopen('Ressources/Raw/Daten_01012006_bis_30062016 copy.csv', 'r')) !== FALSE) {
+
+            // if (($handle = fopen('Ressources/Raw/Daten_01012006_bis_30062016.exp', 'r')) !== FALSE) {
         // if (($handle = fopen('Ressources/Raw/test_sgar.csv', 'r')) !== FALSE) {
-            while (($data = fgetcsv($handle, 10000, ';')) !== FALSE AND $row <= 1000000) {
+            while (($data = fgetcsv($handle, 100000, ';')) !== FALSE AND $row <= $this->config->general->importAmount) {
                 $row++;
                 // skip head line
                 if ($row == 1) continue;
+                /*
                 $num = count($data);
-                // echo "<p> $num fields in line $row: <br /></p>\n";
+                echo "<p> $num fields in line $row: <br /></p>\n";
+                */
 
                 // insert all records
                 $this->dbHelper->importOp($data, $row);
@@ -78,9 +83,11 @@ class Worker {
             fclose($handle);
         }
 
-        $this->db->transactionRollback();
-	    // $this->db->transactionCommit();
-
+        if ($this->config->general->doRealCommit) {
+            $this->db->transactionCommit();
+        } else {
+            $this->db->transactionRollback();
+        }
 
         $mainDuration = round(Utility::trackTime('main'), 3);
         var_dump($mainDuration);
