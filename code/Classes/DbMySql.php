@@ -37,6 +37,7 @@ class DbMySql {
         $this->utf8Decode = $config->utf8Decode;
         try {
             $host = new PDO('mysql:host='.$config->host.';dbname='.$config->db, $config->user, $config->pwd);
+            // $host->setAttribute(PDO::MYSQL_ATTR_USE_BUFFERED_QUERY, false);
 			// $host->exec("set names utf8");
             $this->host = $host;
         } catch (\PDOException $e) {
@@ -96,6 +97,16 @@ class DbMySql {
         }
 
         return $result;
+    }
+
+    public function query($sql) {
+        $result = $this->host->query($sql);
+
+        $data = array();
+        while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
+            $data[] = $row;
+        }
+        return $data;
     }
 
     /**

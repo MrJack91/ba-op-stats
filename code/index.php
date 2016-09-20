@@ -16,15 +16,6 @@ require_once('Classes/DbMySql.php');
 require_once('Classes/DbHelper.php');
 require_once('Classes/Worker.php');
 
-/*
-require_once('Classes/FTP.php');
-require_once('Classes/SeminarHandler.php');
-require_once('Classes/CategoryHandler.php');
-*/
-
-
-// max 30min
-set_time_limit(1800);
 
 // secure connection credentials
 require_once('config.inc.php');

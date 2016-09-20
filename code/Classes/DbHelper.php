@@ -58,10 +58,6 @@ class DbHelper {
 			return $date->format('Y-m-d');
 		} else {
 			return null;
-			/*
-			echo 'invalid Date: '. $val .'<br>';
-			exit();
-			*/
 		}
 	}
 
@@ -80,10 +76,6 @@ class DbHelper {
 			return $date->format('Y-m-d H:i:s');
 		} else {
 			return null;
-			/*
-			echo 'invalid Date: '. $val .'<br>';
-			exit();
-			*/
 		}
 	}
 
@@ -208,7 +200,6 @@ class DbHelper {
 			}),
 
 			'Dringlichkeit' => array(function ($val, $fieldName, &$values) {
-				// DONE: add case if this field is completly missing
 				switch ($val) {
 					case 'N!':
 						return 4;
@@ -257,11 +248,6 @@ class DbHelper {
 					echo 'Modus mismatch: ' . $val . '<br>';
 					// reset pointers, rebuild
 					$this->stateFlag = 1;
-					/*
-					$values['SGARCode3'] = null;
-					$colPos -= 2;
-					$colParsePos -= 1;
-					*/
 				}
 				return null;
 			}),
@@ -451,9 +437,6 @@ class DbHelper {
 		$remainingCols = array_filter($remainingCols);
 		$values['Freitext'] = implode(';', $remainingCols);
 
-		// TODO: add calculated helper fields: bmi, op duration, last operation of same patient...
-
-
 		if ($this->stateFlag == 1) {
 			var_dump($values);
 		}
@@ -462,6 +445,21 @@ class DbHelper {
 		$uid = $this->worker->counter++;
 
 		return $uid;
+	}
+
+
+	public function loadAllData($selector = '*', $limit = '') {
+		if (strlen($limit) > 0) {
+			$limit = 'LIMIT ' . $limit;
+		}
+
+		$sql = '
+			SELECT ' . $selector . '
+			FROM Operation
+			' . $limit . ';
+		';
+		$data = $this->worker->db->exec($sql);
+		return $data;
 	}
 
 }

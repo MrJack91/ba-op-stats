@@ -1,5 +1,10 @@
 <?php
 
+// max 30min
+set_time_limit(1800);
+ini_set('memory_limit', '1000M');
+
+
 $config = new stdClass();
 
 // home
@@ -16,7 +21,7 @@ $config->general = new stdClass();
 $config->general->importAmount = 1;
 // $config->general->importAmount = 1000000;
 $config->general->doRealCommit = false;
-/*
-$config->general->fileSource = '/data/tx_eosdirectory/';
-$config->general->fileTarget = 'public_html/uploads/tx_ossdirectory/imported'; // change this must also be changed in code -> relative path DbHelper/importFirm()
-*/
+
+// 'initialImport', 'addAge'
+$config->general->importTypes = array('');
+
