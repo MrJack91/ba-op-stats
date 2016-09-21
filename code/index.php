@@ -12,6 +12,7 @@ require_once('Psr/Log/LogLevel.php');
 
 require_once('Classes/Logger.php');
 require_once('Classes/Utility.php');
+require_once('Classes/ProgressBar.php');
 require_once('Classes/DbMySql.php');
 require_once('Classes/DbHelper.php');
 require_once('Classes/Worker.php');

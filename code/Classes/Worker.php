@@ -31,12 +31,17 @@ class Worker {
     /** @var DbMySql|null  */
     public $counter = 0;
 
+    public $progressBar = null;
+
 	/**
      * @param $config stdClass
      */
     public function __construct($config) {
         $this->config = $config;
         $this->log = new Logger(dirname(__DIR__).'/Logs', LogLevel::DEBUG);
+
+        // progressbar
+        $this->progressBar = new ProgressBar();
 
         // host connect
         $this->db = new DbMySql($this, $this->config->db);
@@ -55,18 +60,18 @@ class Worker {
 
         foreach ($this->config->general->importTypes as $importType) {
 
-            // TODO: add op duration diff, op duration per phase and total, next op in same room, op-group via sgarcode, bmi, last operation of same patient
-
             // call function
             $functionName = 'type'.ucfirst($importType);
             if (method_exists($this, $functionName)) {
+                echo 'start import type: '. $importType .'<br>';
                 $this->{$functionName}();
                 echo 'finished import type: '. $importType .'<br>';
+                echo '<hr>';
             } else {
                 echo 'type is not defined: '. $importType .'<br>';
             }
         }
-
+        echo '<br>';
 
         if ($this->config->general->doRealCommit) {
             $this->db->transactionCommit();
@@ -78,10 +83,15 @@ class Worker {
         var_dump($mainDuration);
     }
 
+
     protected function typeInitialImport() {
         // read and parse csv
         $row = 0;
-        if (($handle = fopen('Ressources/Raw/Daten_01012006_bis_30062016.csv', 'r')) !== FALSE) {
+        $filepath = 'Ressources/Raw/Daten_01012006_bis_30062016.csv';
+        if (($handle = fopen($filepath, 'r')) !== FALSE) {
+            $lines = min(intval(exec('wc -l ' . $filepath)-1), $this->config->general->importAmount);
+            $this->progressBar->init($lines);
+
             while (($data = fgetcsv($handle, 100000, ';')) !== FALSE AND $row <= $this->config->general->importAmount) {
                 $row++;
                 // skip head line
@@ -100,14 +110,20 @@ class Worker {
                 }
                 echo '<hr>';
                 */
+                $this->progressBar->addStep();
             }
+            $this->progressBar->finish();
             fclose($handle);
         }
     }
 
+    /* *** Types *** */
 
     protected function typeAddAge() {
-        $data = $this->dbHelper->loadAllData('ops_id, OPDatum, PatGeb', 2);
+        $data = $this->dbHelper->loadAllData('ops_id, OPDatum, PatGeb', $this->config->general->importAmount, 'OPDatum');
+
+        $this->progressBar->init(count($data));
+
 
         foreach ($data as $op) {
             $opId = $op['ops_id'];
@@ -118,6 +134,34 @@ class Worker {
             $age = $datediff->y + (1 / 12 * $datediff->m) + (1 / 12 / 30 * $datediff->d);
 
             $this->db->insert('Operation', array('_PatAge' => $age, '_PatAgeDays' => $datediff->days, '_PatAgeYear' => $datediff->y, '_PatAgeMonth' => $datediff->m, '_PatAgeDay' => $datediff->d), 'WHERE ops_id = ' . $opId);
+
+            $this->progressBar->addStep();
         }
+
+        $this->progressBar->finish();
     }
+
+    protected function typeAddReoperation() {
+        $data = $this->dbHelper->loadAllData('ops_id, PID, OPDatum', 30, 'PID');
+
+        var_dump($data);
+        exit();
+
+        /*
+        foreach ($data as $op) {
+            $opId = $op['ops_id'];
+            $opDate = new \DateTime($op['OPDatum']);
+            $patDate = new \DateTime($op['PatGeb']);
+
+            $datediff = $opDate->diff($patDate, true);
+            $age = $datediff->y + (1 / 12 * $datediff->m) + (1 / 12 / 30 * $datediff->d);
+
+            $this->db->insert('Operation', array('_PatAge' => $age, '_PatAgeDays' => $datediff->days, '_PatAgeYear' => $datediff->y, '_PatAgeMonth' => $datediff->m, '_PatAgeDay' => $datediff->d), 'WHERE ops_id = ' . $opId);
+        }
+        */
+    }
+
+
+    // TODO: add op duration diff, op duration per phase and total, next op in same room, op-group via sgarcode, bmi, last operation of same patient
+
 }

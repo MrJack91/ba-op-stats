@@ -3,9 +3,9 @@
 -- http://www.phpmyadmin.net
 --
 -- Host: localhost:3306
--- Erstellungszeit: 20. Sep 2016 um 16:03
+-- Erstellungszeit: 21. Sep 2016 um 16:17
 -- Server-Version: 5.5.42
--- PHP-Version: 5.6.10
+-- PHP-Version: 7.0.0
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 SET time_zone = "+00:00";
@@ -80,7 +80,12 @@ CREATE TABLE `Operation` (
   `rel_schwangerschaft` tinyint(3) UNSIGNED NOT NULL,
   `Freitext` varchar(1000) NOT NULL,
   `csvLinePos` int(11) NOT NULL,
-  `csvData` text NOT NULL
+  `csvData` text NOT NULL,
+  `_PatAge` float UNSIGNED DEFAULT NULL,
+  `_PatAgeDays` int(11) DEFAULT NULL,
+  `_PatAgeYear` int(11) NOT NULL,
+  `_PatAgeMonth` int(11) NOT NULL,
+  `_PatAgeDay` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 --
@@ -101,7 +106,7 @@ ALTER TABLE `Operation`
 -- AUTO_INCREMENT für Tabelle `Operation`
 --
 ALTER TABLE `Operation`
-  MODIFY `ops_id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=399020;
+  MODIFY `ops_id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT;
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;

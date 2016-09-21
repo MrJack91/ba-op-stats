@@ -397,6 +397,15 @@ class DbHelper {
 			'csvLinePos' => $row,
 			'csvData' => json_encode($opCsv)
 		);
+
+		if (json_last_error() > 0) {
+			var_dump(json_last_error());
+			var_dump(json_last_error_msg());
+			var_dump($row);
+			var_dump($opCsv);
+			echo '<hr>';
+		}
+
 		$colPos = 0;
 		$colParsePos = 0; // can be offset, if col is missing
 		// foreach ($this->fieldMap as $csvPos => $dbField) {
@@ -448,7 +457,7 @@ class DbHelper {
 	}
 
 
-	public function loadAllData($selector = '*', $limit = '') {
+	public function loadAllData($selector = '*', $limit = '', $orderBy = 'OPDatum') {
 		if (strlen($limit) > 0) {
 			$limit = 'LIMIT ' . $limit;
 		}
@@ -456,6 +465,7 @@ class DbHelper {
 		$sql = '
 			SELECT ' . $selector . '
 			FROM Operation
+			ORDER BY ' . $orderBy . '
 			' . $limit . ';
 		';
 		$data = $this->worker->db->exec($sql);
