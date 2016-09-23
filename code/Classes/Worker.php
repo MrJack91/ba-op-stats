@@ -120,7 +120,7 @@ class Worker {
     /* *** Types *** */
 
     protected function typeAddAge() {
-        $data = $this->dbHelper->loadAllData('ops_id, OPDatum, PatGeb', $this->config->general->importAmount, 'OPDatum');
+        $data = $this->dbHelper->loadAllData('ops_id, OPDatum, PatGeb', '', 'OPDatum', $this->config->general->importAmount);
 
         $this->progressBar->init(count($data));
 
@@ -133,7 +133,19 @@ class Worker {
             $datediff = $opDate->diff($patDate, true);
             $age = $datediff->y + (1 / 12 * $datediff->m) + (1 / 12 / 30 * $datediff->d);
 
-            $this->db->insert('Operation', array('_PatAge' => $age, '_PatAgeDays' => $datediff->days, '_PatAgeYear' => $datediff->y, '_PatAgeMonth' => $datediff->m, '_PatAgeDay' => $datediff->d), 'WHERE ops_id = ' . $opId);
+            $values = array(
+                '_PatAge' => $age,
+                '_PatAgeDays' => $datediff->days,
+                '_PatAgeYear' => $datediff->y,
+                '_PatAgeMonth' => $datediff->m,
+                '_PatAgeDay' => $datediff->d
+            );
+
+            $this->db->insert(
+                'Operation',
+                $values,
+                'WHERE ops_id = ' . $opId
+            );
 
             $this->progressBar->addStep();
         }
@@ -142,26 +154,164 @@ class Worker {
     }
 
     protected function typeAddReoperation() {
-        $data = $this->dbHelper->loadAllData('ops_id, PID, OPDatum', 30, 'PID');
+        $data = $this->dbHelper->loadAllData('ops_id, PID, OPDatum', 'PID > 0', 'PID, OPDatum', $this->config->general->importAmount);
 
-        var_dump($data);
-        exit();
+        $this->progressBar->init(count($data));
 
-        /*
+        $op = null;
+        $lastOp = null;
+        $nextOp = null;
+        for ($i = 0; $i < count($data); $i++) {
+            $op = $data[$i];
+            $opId = $op['ops_id'];
+            $opPid = $op['PID'];
+
+            $values = array('_LastOp' => null, '_NextOp' => null);
+            foreach (array('_LastOp' => -1, '_NextOp' => 1) as $fieldName => $indexAddon) {
+                $key = $i+$indexAddon;
+                // check if compare records exists
+                if (!array_key_exists($key, $data)) {
+                    continue;
+                }
+                $op2 = $data[$i+$indexAddon];
+
+                // check if same person (pid)
+                if ($opPid == $op2['PID']) {
+                    $diff = $this->calcDateDiff($op, $op2, 'OPDatum');
+                    $values[$fieldName] = $diff->days;
+                }
+            }
+
+            $this->db->insert(
+                'Operation',
+                $values,
+                'WHERE ops_id = ' . $opId
+            );
+
+            $this->progressBar->addStep();
+        }
+        $this->progressBar->finish();
+    }
+
+    /**
+     * @param \DateTime|String $op1
+     * @param \DateTime|String $op1
+     * @param string $key
+     * @return bool|\DateInterval
+     */
+    protected function calcDateDiff($op1, $op2, $key = 'OPDatum') {
+        $date1 = Utility::convertDateTime($op1[$key]);
+        $date2 = Utility::convertDateTime($op2[$key]);
+        $datediff = $date1->diff($date2, true);
+        return $datediff;
+    }
+
+    protected function typeAddBmi() {
+        $data = $this->dbHelper->loadAllData('ops_id, Gewicht, Groesse', '', 'OPDatum', $this->config->general->importAmount);
+
+        $this->progressBar->init(count($data));
+
+
         foreach ($data as $op) {
             $opId = $op['ops_id'];
-            $opDate = new \DateTime($op['OPDatum']);
-            $patDate = new \DateTime($op['PatGeb']);
+            $opWeight = floatval($op['Gewicht']);
+            $opHeight = floatval($op['Groesse']);
 
-            $datediff = $opDate->diff($patDate, true);
-            $age = $datediff->y + (1 / 12 * $datediff->m) + (1 / 12 / 30 * $datediff->d);
+            $bmi = null;
+            if ($opWeight > 0 && $opWeight < 300 && $opHeight > 0 && $opHeight < 250) {
+                $opHeight = $opHeight / 100;
+                $bmi = $opWeight / pow($opHeight , 2);
+            }
 
-            $this->db->insert('Operation', array('_PatAge' => $age, '_PatAgeDays' => $datediff->days, '_PatAgeYear' => $datediff->y, '_PatAgeMonth' => $datediff->m, '_PatAgeDay' => $datediff->d), 'WHERE ops_id = ' . $opId);
+            // todo: add bmi validity
+            /*
+			var_dump($opId);
+			echo $opWeight.'/('.$opHeight.'^2) = '.$bmi;
+			var_dump($opWeight);
+			var_dump($opHeight);
+			var_dump($bmi);
+			echo '<hr>';
+			*/
+
+            $values = array(
+                '_BMI' => $bmi
+            );
+
+            $this->db->insert(
+                'Operation',
+                $values,
+                'WHERE ops_id = ' . $opId
+            );
+            $this->progressBar->addStep();
         }
-        */
+
+        $this->progressBar->finish();
+    }
+
+    protected function typeAddTimeDiff() {
+        $data = $this->dbHelper->loadAllData('ops_id, ANABereit, OPStart, OPEnde, Zeitprognose', '', 'OPDatum', $this->config->general->importAmount);
+
+        $this->progressBar->init(count($data));
+
+        foreach ($data as $op) {
+            $opId = $op['ops_id'];
+
+            // waiting time
+            $opANABereit = $op['ANABereit'];
+            $opStart = $op['OPStart'];
+            $opEnd = $op['OPEnde'];
+            $opPlanned = intval($op['Zeitprognose']);
+
+            $opANABereit = Utility::convertDateTime($opANABereit);
+            $opStart = Utility::convertDateTime($opStart);
+            $opEnd = Utility::convertDateTime($opEnd);
+
+            // waiting time
+            $minWaiting = null;
+            if ($opANABereit && $opStart) {
+                $diff = $opANABereit->diff($opStart);
+                $minWaiting = $diff->days*1440 + $diff->h*60 + $diff->i;
+                if ($diff->invert) {
+                    $minWaiting = $minWaiting * (-1);
+                }
+            }
+
+            // op time (compared with planned)
+            $minOp = null;
+            $minDiffPlanned = null;
+            if ($opStart && $opEnd) {
+                $diff = $opStart->diff($opEnd);
+                $minOp = $diff->days*1440 + $diff->h*60 + $diff->i;
+                if ($diff->invert) {
+                    $minOp = $minOp * (-1);
+                }
+
+                if ($opPlanned > 0) {
+                    $minDiffPlanned = $opPlanned - $minOp;
+                }
+
+            }
+
+            $values = array(
+                '_time_waiting_ANABereit_to_OPStart' => $minWaiting,
+                '_time_OP' => $minOp,
+                '_timediff_OP_planned' => $minDiffPlanned
+            );
+
+            $this->db->insert(
+                'Operation',
+                $values,
+                'WHERE ops_id = ' . $opId
+            );
+
+            $this->progressBar->addStep();
+        }
+
+        $this->progressBar->finish();
     }
 
 
-    // TODO: add op duration diff, op duration per phase and total, next op in same room, op-group via sgarcode, bmi, last operation of same patient
+
+    // TODO: add op duration diff to plan, op duration per phase and total, next op in same room, op-group via sgarcode
 
 }

@@ -57,7 +57,7 @@ class ProgressBar {
 	}
 
 	static protected function showOutput() {
-		ob_flush();
+		// ob_flush();
 		flush();
 	}
 

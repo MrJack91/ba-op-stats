@@ -76,4 +76,15 @@ class Utility {
         return $newDate;
     }
 
+    /**
+     * @param \DateTime|String $date
+     * @return \DateTime
+     */
+    static function convertDateTime($date) {
+        if (!is_object($date) || get_class($date) !== 'DateTime') {
+            $date = new \DateTime($date);
+        }
+        return $date;
+    }
+
 }

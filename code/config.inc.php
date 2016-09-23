@@ -18,10 +18,10 @@ $config->db->utf8Decode = false;
 
 // general
 $config->general = new stdClass();
-$config->general->importAmount = 1000;
+$config->general->importAmount = 200;
 // $config->general->importAmount = 1000000;
 $config->general->doRealCommit = false;
 
-// 'initialImport', 'addAge', 'addReoperation'
-$config->general->importTypes = array('addReoperation');
+// 'initialImport', 'addAge', 'addReoperation' 'addBmi', 'addTimeDiff'
+$config->general->importTypes = array('addTimeDiff');
 

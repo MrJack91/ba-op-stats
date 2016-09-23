@@ -457,14 +457,19 @@ class DbHelper {
 	}
 
 
-	public function loadAllData($selector = '*', $limit = '', $orderBy = 'OPDatum') {
+	public function loadAllData($selector = '*', $where = '', $orderBy = 'ops_id', $limit = '') {
 		if (strlen($limit) > 0) {
 			$limit = 'LIMIT ' . $limit;
+		}
+
+		if (strlen($where) > 0) {
+			$where = ' AND ' . $where;
 		}
 
 		$sql = '
 			SELECT ' . $selector . '
 			FROM Operation
+			WHERE 1=1 ' . $where . '
 			ORDER BY ' . $orderBy . '
 			' . $limit . ';
 		';
