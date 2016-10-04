@@ -88,6 +88,7 @@ class Worker {
         // read and parse csv
         $row = 0;
         $filepath = 'Ressources/Raw/Daten_01012006_bis_30062016.csv';
+        // $filepath = 'Ressources/Raw/Daten_01012006_bis_30062016_mit_Schmerztherapie.csv';
         if (($handle = fopen($filepath, 'r')) !== FALSE) {
             $lines = min(intval(exec('wc -l ' . $filepath)-1), $this->config->general->importAmount);
             $this->progressBar->init($lines);

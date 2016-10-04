@@ -181,37 +181,37 @@ class DbHelper {
 			'ANAArt' => array(function ($val, $fieldName, &$values) {
 				switch ($val) {
 					case 'AN':
-						return 1;
+						return 1;   // Allgemeinanästhesie
 						break;
 					case 'RA':
-						return 2;
+						return 2;   // Regionalanästhesie
 						break;
 					case 'MAC':
-						return 3;
+						return 3;   // Monitored Anaesthesia Care
 						break;
 					case 'AN+RA':
-						return 4;
+						return 4;   // Kombinationsanästhesie geplant
 						break;
 					case 'misslungene_RA':
-						return 5;
+						return 5;   // misslungene Regionalanästhesie
 						break;
 				}
-				return null;
+				return null; // kA as Text
 			}),
 
 			'Dringlichkeit' => array(function ($val, $fieldName, &$values) {
 				switch ($val) {
 					case 'N!':
-						return 4;
+						return 4;   // OP sehr dringend (unmittelbar notwendig)
 						break;
 					case 'N':
-						return 3;
+						return 3;   // OP innerhalb einiger Stunden notwendig; sicher noch am gleichen Tag
 						break;
 					case 'oN':
-						return 2;
+						return 2;   // organisatorischer Notfall: OP wurde nachgemeldet, nicht speziell dringend, aber nicht eingeplant
 						break;
 					case 'E':
-						return 1;
+						return 1;   // Elektivoperation (geplant)
 						break;
 				}
 				return null;
@@ -240,7 +240,7 @@ class DbHelper {
 			}),
 
 			'Modus' => array(function ($val, $fieldName, &$values, &$opCsv, &$colPos, &$colParsePos) {
-				$valid = array('A/S', 'amb', 'stat');
+				$valid = array('A/S', 'amb', 'stat'); // ambulant/stationär, ambulant, stationär
 				if (in_array($val, $valid)) {
 					return $val;
 				} else {

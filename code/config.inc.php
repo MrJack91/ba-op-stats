@@ -22,6 +22,6 @@ $config->general->importAmount = 200;
 // $config->general->importAmount = 1000000;
 $config->general->doRealCommit = false;
 
-// 'initialImport', 'addAge', 'addReoperation' 'addBmi', 'addTimeDiff'
-$config->general->importTypes = array('addTimeDiff');
+// 'initialImport', 'addAge', 'addReoperation', 'addBmi', 'addTimeDiff'
+$config->general->importTypes = array('ss');
 
