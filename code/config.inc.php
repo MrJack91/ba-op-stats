@@ -18,7 +18,7 @@ $config->db->utf8Decode = false;
 
 // general
 $config->general = new stdClass();
-$config->general->importAmount = 200;
+$config->general->importAmount = 4;
 // $config->general->importAmount = 1000000;
 $config->general->doRealCommit = false;
 

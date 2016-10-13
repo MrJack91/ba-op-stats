@@ -38,7 +38,7 @@ class DbMySql {
         try {
             $host = new PDO('mysql:host='.$config->host.';dbname='.$config->db, $config->user, $config->pwd);
             // $host->setAttribute(PDO::MYSQL_ATTR_USE_BUFFERED_QUERY, false);
-			// $host->exec("set names utf8");
+			$host->exec("set names utf8");
             $this->host = $host;
         } catch (\PDOException $e) {
             $error =  'Connection failed: ' . $e->getMessage() . ' (Err: ' . $e->getCode() . ')<br>';
