@@ -18,10 +18,17 @@ $config->db->utf8Decode = false;
 
 // general
 $config->general = new stdClass();
+
+// dev
 $config->general->importAmount = 4;
-// $config->general->importAmount = 1000000;
 $config->general->doRealCommit = false;
+
+// live
+// $config->general->importAmount = 1000000;
+// $config->general->doRealCommit = true;
 
 // 'initialImport', 'addAge', 'addReoperation', 'addBmi', 'addTimeDiff'
 $config->general->importTypes = array('ss');
+// $config->general->importTypes = array('initialImport');
+// $config->general->importTypes = array('initialImport', 'addAge', 'addReoperation', 'addBmi', 'addTimeDiff');
 

@@ -155,6 +155,7 @@ class Worker {
     }
 
     protected function typeAddReoperation() {
+        // get data ordered by PID, OPDatum
         $data = $this->dbHelper->loadAllData('ops_id, PID, OPDatum', 'PID > 0', 'PID, OPDatum', $this->config->general->importAmount);
 
         $this->progressBar->init(count($data));
@@ -167,10 +168,10 @@ class Worker {
             $opId = $op['ops_id'];
             $opPid = $op['PID'];
 
-            $values = array('_LastOp' => null, '_NextOp' => null);
-            foreach (array('_LastOp' => -1, '_NextOp' => 1) as $fieldName => $indexAddon) {
+            $values = array('_LastOpDays' => null, '_NextOpDays' => null);
+            foreach (array('_LastOpDays' => -1, '_NextOpDays' => 1) as $fieldName => $indexAddon) {
                 $key = $i+$indexAddon;
-                // check if compare records exists
+                // check if compare records exists in data (skip very first and very last entry)
                 if (!array_key_exists($key, $data)) {
                     continue;
                 }

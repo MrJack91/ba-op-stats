@@ -202,16 +202,16 @@ class DbHelper {
 			'Dringlichkeit' => array(function ($val, $fieldName, &$values) {
 				switch ($val) {
 					case 'N!':
-						return 4;   // OP sehr dringend (unmittelbar notwendig)
+						return 1;   // OP sehr dringend (unmittelbar notwendig)
 						break;
 					case 'N':
-						return 3;   // OP innerhalb einiger Stunden notwendig; sicher noch am gleichen Tag
+						return 2;   // OP innerhalb einiger Stunden notwendig; sicher noch am gleichen Tag
 						break;
 					case 'oN':
-						return 2;   // organisatorischer Notfall: OP wurde nachgemeldet, nicht speziell dringend, aber nicht eingeplant
+						return 3;   // organisatorischer Notfall: OP wurde nachgemeldet, nicht speziell dringend, aber nicht eingeplant
 						break;
 					case 'E':
-						return 1;   // Elektivoperation (geplant)
+						return 4;   // Elektivoperation (geplant)
 						break;
 				}
 				return null;

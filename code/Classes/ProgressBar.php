@@ -49,6 +49,7 @@ class ProgressBar {
 			self::printState();
 		}
 		echo '|</pre>';
+		self::showOutput();
 	}
 
 	static protected function printState() {
