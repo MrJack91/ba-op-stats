@@ -37,14 +37,21 @@ class DbHelper {
 	}
 
 	public function intval($val) {
-		return intval($val);
+		$tempVal = intval($val);
+		// don't allow negative numbers (example for PIDs)
+		if (strlen($val) > 0 && $tempVal == $val && $tempVal >= 0) {
+			return $tempVal;
+		} else {
+			return null;
+		}
 	}
 
 	public function nullForEmpty($val) {
 		if ($val == '') {
 			return null;
+		} else {
+			return $val;
 		}
-		return $val;
 	}
 
 	/**
@@ -284,84 +291,74 @@ class DbHelper {
 				$pos = array_search($fieldName, $this->fieldMap);
 				$level = $csv[++$pos];
 
+				// return if person has currently problems
+				$return = 0;
+				if (strlen($val) > 0) {
+					$return = 1;
+				}
+
+				// saves problems from past
+				$nLevel = null;
 				switch ($level) {
 					case 'min':
-						$return = 0;
+						$nLevel = 1;
 						break;
-					case 'maj':
-						$return = 1;
-						break;
-					default:
-						$return = null;
+					case 'may':
+						$nLevel = 2;
 						break;
 				}
-				/*
-				if ($val == '' && $level == 'min') {
-					$return = 0;
-				} else if ($val == 'HT' && $level == 'min') {
-					$return = 1;
-				} else if ($val == 'HT' && $level == 'may') {
-					$return = 2;
-				}
-				*/
+				$values['HT_problems'] = $nLevel;
+
 				return $return;
 			}),
 
 			'Raucher' => array(function ($val, $fieldName, &$values, &$csv) {
 				$pos = array_search($fieldName, $this->fieldMap);
 				$level = $csv[++$pos];
-				$return = null;
 
+				// return if person has currently problems
+				$return = 0;
+				if (strlen($val) > 0) {
+					$return = 1;
+				}
+
+				// saves problems from past
+				$nLevel = null;
 				switch ($level) {
 					case 'min':
-						$return = 0;
+						$nLevel = 1;
 						break;
-					case 'maj':
-						$return = 1;
-						break;
-					default:
-						$return = null;
+					case 'may':
+						$nLevel = 2;
 						break;
 				}
+				$values['Raucher_problems'] = $nLevel;
 
-				/*
-				if ($val == 'NR' && $level == 'min') {
-					$return = 0;
-				} else if ($val == 'R' && $level == 'min') {
-					$return = 1;
-				} else if ($val == 'R' && $level == 'may') {
-					$return = 2;
-				}
-				*/
 				return $return;
 			}),
 
 			'NI' => array(function ($val, $fieldName, &$values, &$csv) {
 				$pos = array_search($fieldName, $this->fieldMap);
 				$level = $csv[++$pos];
-				$return = null;
 
+				// return if person has currently problems
+				$return = 0;
+				if (strlen($val) > 0) {
+					$return = 1;
+				}
+
+				// saves problems from past
+				$nLevel = null;
 				switch ($level) {
 					case 'min':
-						$return = 0;
+						$nLevel = 1;
 						break;
-					case 'maj':
-						$return = 1;
-						break;
-					default:
-						$return = null;
+					case 'may':
+						$nLevel = 2;
 						break;
 				}
+				$values['NI_problems'] = $nLevel;
 
-				/*
-				if ($val == '' && $level == 'min') {
-					$return = 1;
-				} else if ($val == 'HT' && $level == 'min') {
-					$return = 2;
-				} else if ($val == 'HT' && $level == 'may') {
-					$return = 3;
-				}
-				*/
 				return $return;
 			}),
 
