@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Diagram>
+  <ID>PHP</ID>
+  <OriginalElement>\Mha\BaOpsStats\Worker</OriginalElement>
+  <nodes>
+    <node x="-49.0" y="-172.0">\Mha\BaOpsStats\ProgressBar</node>
+    <node x="328.0" y="-169.0">\Mha\BaOpsStats\DbMySql</node>
+    <node x="-47.0" y="224.0">\Mha\BaOpsStats\Utility</node>
+    <node x="-46.0" y="3.0">\Mha\BaOpsStats\DbHelper</node>
+    <node x="-431.0" y="-184.0">\Mha\BaOpsStats\Worker</node>
+  </nodes>
+  <notes />
+  <edges />
+  <settings layout="Hierarchic Group" zoom="1.0" x="104.0" y="125.5" />
+  <SelectedNodes>
+    <node>\Mha\BaOpsStats\ProgressBar</node>
+    <node>\Mha\BaOpsStats\Worker</node>
+  </SelectedNodes>
+  <Categories>
+    <Category>Methods</Category>
+  </Categories>
+  <VISIBILITY>private</VISIBILITY>
+</Diagram>
+
