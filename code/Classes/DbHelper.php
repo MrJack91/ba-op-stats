@@ -131,7 +131,6 @@ class DbHelper {
 			'SGARCode3' => array(array($this, 'nullForEmpty')),
 
 
-
 			'Wochentag' => array(function ($val) {
 				switch ($val) {
 					case 'Montag':

@@ -83,12 +83,16 @@ class Worker {
         var_dump($mainDuration);
     }
 
+    /* *** Types *** */
 
+    /**
+     * Runs the inital import
+     */
     protected function typeInitialImport() {
         // read and parse csv
         $row = 0;
-        $filepath = 'Ressources/Raw/Daten_01012006_bis_30062016.csv';
-        // $filepath = 'Ressources/Raw/Daten_01012006_bis_30062016_mit_Schmerztherapie.csv';
+        $filepath = 'Resources/Raw/Daten_01012006_bis_30062016.csv';
+        // $filepath = 'Resources/Raw/Daten_01012006_bis_30062016_mit_Schmerztherapie.csv';
         if (($handle = fopen($filepath, 'r')) !== FALSE) {
             $lines = min(intval(exec('wc -l ' . $filepath)-1), $this->config->general->importAmount);
             $this->progressBar->init($lines);
@@ -118,8 +122,9 @@ class Worker {
         }
     }
 
-    /* *** Types *** */
-
+    /**
+     * Calc the age of the patient in different units
+     */
     protected function typeAddAge() {
         $data = $this->dbHelper->loadAllData('ops_id, OPDatum, PatGeb', '', 'OPDatum', $this->config->general->importAmount);
 
@@ -154,6 +159,9 @@ class Worker {
         $this->progressBar->finish();
     }
 
+    /**
+     * Calculates the duration between last and next operation of the same patient
+     */
     protected function typeAddReoperation() {
         // get data ordered by PID, OPDatum
         $data = $this->dbHelper->loadAllData('ops_id, PID, OPDatum', 'PID > 0', 'PID, OPDatum', $this->config->general->importAmount);
@@ -208,11 +216,13 @@ class Worker {
         return $datediff;
     }
 
+    /**
+     * Adds the bmi of every operation
+     */
     protected function typeAddBmi() {
         $data = $this->dbHelper->loadAllData('ops_id, Gewicht, Groesse', '', 'OPDatum', $this->config->general->importAmount);
 
         $this->progressBar->init(count($data));
-
 
         foreach ($data as $op) {
             $opId = $op['ops_id'];
@@ -250,6 +260,9 @@ class Worker {
         $this->progressBar->finish();
     }
 
+    /**
+     * Adds the time between different operation stages
+     */
     protected function typeAddTimeDiff() {
         $data = $this->dbHelper->loadAllData('ops_id, ANABereit, OPStart, OPEnde, Zeitprognose', '', 'OPDatum', $this->config->general->importAmount);
 
