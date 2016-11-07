@@ -226,37 +226,51 @@ class Worker {
             $opWeight = floatval($op['Gewicht']);
             $opHeight = floatval($op['Groesse']);
 
+            $hasFixed = 0;
             $values = array();
+            $values['_Gewicht'] = null;
+            $values['_Groesse'] = null;
             $values['_GroesseGewichtFixed'] = 0;
+            $values['_BMI'] = null;
 
-            $bmi = Utility::bmi($opHeight, $opWeight);
-            if ($bmi > 60 || $bmi < 10) {
-                // try to swich the attributes
-                $bmi = Utility::bmi($opWeight, $opHeight);
-                if ($bmi < 60 || $bmi > 10) {
-                    // ok the attr are switched, change them
-                    $opHeightTemp = $opHeight;
-                    $opHeight = $opWeight;
-                    $opWeight = $opHeightTemp;
-                    $values['_GroesseGewichtFixed'] = 1;
-                } else {
-                    $bmi = null;
+            if ($opWeight > 0 && $opHeight > 0) {
+                $bmi = Utility::bmi($opHeight, $opWeight);
+                if ($bmi > 65 || $bmi < 10) {
+                    // try to swich the attributes
+                    $bmi = Utility::bmi($opWeight, $opHeight);
+                    if ($bmi < 65 && $bmi > 10) {
+                        // ok the attr are switched, change them
+                        $opHeightTemp = $opHeight;
+                        $opHeight = $opWeight;
+                        $opWeight = $opHeightTemp;
+                        $hasFixed = 1;
+                    } else {
+                        $bmi = null;
+                        $opHeight = null;
+                        $opWeight = null;
+                    }
+                }
+
+                if ($opHeight > 30 && $opHeight < 250) {
+                    $values['_Groesse'] = $opHeight;
+                }
+                if ($opWeight > 2 && $opWeight < 250) {
+                    $values['_Gewicht'] = $opWeight;
+                }
+                // all value must be valid, to set bmi
+                if (($opHeight > 30 && $opHeight < 250) && ($opWeight > 2 && $opWeight < 250)) {
+                    $values['_BMI'] = $bmi;
+                    if ($hasFixed == 1) {
+                        $values['_GroesseGewichtFixed'] = 1;
+                    }
                 }
             }
-
-            if ($opHeight < 250) {
-                $values['_Groesse'] = $opWeight;
-            }
-            if ($opWeight < 250) {
-                $values['_Gewicht'] = $opHeight;
-            }
-            $values['_BMI'] = $bmi;
-
             $this->db->insert(
                 'Operation',
                 $values,
                 'WHERE ops_id = ' . $opId
             );
+
             $this->progressBar->addStep();
         }
 
