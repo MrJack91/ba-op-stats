@@ -87,4 +87,19 @@ class Utility {
         return $date;
     }
 
+    /**
+     * Calcs the bmi
+     * @param $height in cm
+     * @param $weight in kg
+     * @return float
+     */
+    static function bmi($height, $weight) {
+        if ($height == 0) {
+            return null;
+        }
+        $height = $height / 100;
+        $bmi = $weight / pow($height , 2);
+        return $bmi;
+    }
+
 }

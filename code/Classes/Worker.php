@@ -70,6 +70,7 @@ class Worker {
             } else {
                 echo 'type is not defined: '. $importType .'<br>';
             }
+
         }
         echo '<br>';
 
@@ -127,9 +128,7 @@ class Worker {
      */
     protected function typeAddAge() {
         $data = $this->dbHelper->loadAllData('ops_id, OPDatum, PatGeb', '', 'OPDatum', $this->config->general->importAmount);
-
         $this->progressBar->init(count($data));
-
 
         foreach ($data as $op) {
             $opId = $op['ops_id'];
@@ -165,7 +164,6 @@ class Worker {
     protected function typeAddReoperation() {
         // get data ordered by PID, OPDatum
         $data = $this->dbHelper->loadAllData('ops_id, PID, OPDatum', 'PID > 0', 'PID, OPDatum', $this->config->general->importAmount);
-
         $this->progressBar->init(count($data));
 
         $op = null;
@@ -221,7 +219,6 @@ class Worker {
      */
     protected function typeAddBmi() {
         $data = $this->dbHelper->loadAllData('ops_id, Gewicht, Groesse', '', 'OPDatum', $this->config->general->importAmount);
-
         $this->progressBar->init(count($data));
 
         foreach ($data as $op) {
@@ -229,25 +226,31 @@ class Worker {
             $opWeight = floatval($op['Gewicht']);
             $opHeight = floatval($op['Groesse']);
 
-            $bmi = null;
-            if ($opWeight > 0 && $opWeight < 300 && $opHeight > 0 && $opHeight < 250) {
-                $opHeight = $opHeight / 100;
-                $bmi = $opWeight / pow($opHeight , 2);
+            $values = array();
+            $values['_GroesseGewichtFixed'] = 0;
+
+            $bmi = Utility::bmi($opHeight, $opWeight);
+            if ($bmi > 60 || $bmi < 10) {
+                // try to swich the attributes
+                $bmi = Utility::bmi($opWeight, $opHeight);
+                if ($bmi < 60 || $bmi > 10) {
+                    // ok the attr are switched, change them
+                    $opHeightTemp = $opHeight;
+                    $opHeight = $opWeight;
+                    $opWeight = $opHeightTemp;
+                    $values['_GroesseGewichtFixed'] = 1;
+                } else {
+                    $bmi = null;
+                }
             }
 
-            // todo: add bmi validity
-            /*
-			var_dump($opId);
-			echo $opWeight.'/('.$opHeight.'^2) = '.$bmi;
-			var_dump($opWeight);
-			var_dump($opHeight);
-			var_dump($bmi);
-			echo '<hr>';
-			*/
-
-            $values = array(
-                '_BMI' => $bmi
-            );
+            if ($opHeight < 250) {
+                $values['_Groesse'] = $opWeight;
+            }
+            if ($opWeight < 250) {
+                $values['_Gewicht'] = $opHeight;
+            }
+            $values['_BMI'] = $bmi;
 
             $this->db->insert(
                 'Operation',
@@ -265,7 +268,6 @@ class Worker {
      */
     protected function typeAddTimeDiff() {
         $data = $this->dbHelper->loadAllData('ops_id, ANABereit, OPStart, OPEnde, Zeitprognose', '', 'OPDatum', $this->config->general->importAmount);
-
         $this->progressBar->init(count($data));
 
         foreach ($data as $op) {
@@ -324,9 +326,5 @@ class Worker {
 
         $this->progressBar->finish();
     }
-
-
-
-    // TODO: add op duration diff to plan, op duration per phase and total, next op in same room, op-group via sgarcode
 
 }

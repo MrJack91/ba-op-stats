@@ -46,6 +46,14 @@ class DbHelper {
 		}
 	}
 
+	public function intvalZeroToNull($val) {
+		$val = $this->intval($val);
+		if ($val == 0) {
+			$val = null;
+		}
+		return $val;
+	}
+
 	public function nullForEmpty($val) {
 		if ($val == '') {
 			return null;
@@ -110,25 +118,27 @@ class DbHelper {
 			'ANAEnde' => array(array($this, 'parseDateTime')),
 
 			// trims
-			'AllgANA' => array(array($this, 'trim')),
-			'RegANA' => array(array($this, 'trim')),
+			'AllgANA' => array(array($this, 'trim'), array($this, 'nullForEmpty')),
+			'RegANA' => array(array($this, 'trim'), array($this, 'nullForEmpty')),
 
 			// int
 			'PID' => array(array($this, 'intval')),
 			'OPSaal' => array(array($this, 'intval')),
-			'Reihe' => array(array($this, 'intval')),
-			'Zeitprognose' => array(array($this, 'intval')),
+			'Reihe' => array(array($this, 'intvalZeroToNull')),
+			'Zeitprognose' => array(array($this, 'intvalZeroToNull')),
 			'OperateurLevel' => array(array($this, 'intval')),
 			'AnaesthLevel' => array(array($this, 'intval')),
 			'PatGender' => array(array($this, 'intval')),
-			'ASARisk' => array(array($this, 'intval')),
-			'Gewicht' => array(array($this, 'intval')),
-			'Groesse' => array(array($this, 'intval')),
+			'ASARisk' => array(array($this, 'intvalZeroToNull')),
+			'Gewicht' => array(array($this, 'intvalZeroToNull')),
+			'Groesse' => array(array($this, 'intvalZeroToNull')),
 
 			// null for empty string
 			'SGARCode1' => array(array($this, 'nullForEmpty')),
 			'SGARCode2' => array(array($this, 'nullForEmpty')),
 			'SGARCode3' => array(array($this, 'nullForEmpty')),
+			'Hauptoperateur' => array(array($this, 'nullForEmpty')),
+			'ANAOA' => array(array($this, 'nullForEmpty')),
 
 
 			'Wochentag' => array(function ($val) {
@@ -390,8 +400,8 @@ class DbHelper {
 	public function importOp($opCsv, $row) {
 		$this->stateFlag = 0;
 		$values = array(
-			'csvLinePos' => $row,
-			'csvData' => json_encode($opCsv)
+			// 'csvLinePos' => $row,
+			// 'csvData' => json_encode($opCsv)
 		);
 
 		if (json_last_error() > 0) {
