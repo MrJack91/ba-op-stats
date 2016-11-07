@@ -281,7 +281,7 @@ class Worker {
      * Adds the time between different operation stages
      */
     protected function typeAddTimeDiff() {
-        $data = $this->dbHelper->loadAllData('ops_id, ANABereit, OPStart, OPEnde, Zeitprognose', '', 'OPDatum', $this->config->general->importAmount);
+        $data = $this->dbHelper->loadAllData('ops_id, ANABereit, OPStart, OPEnde, Zeitprognose, SaalStart, SaalEnde, DATE_FORMAT(SaalStart,\'%H:%i:%s\') as SaalStart_Timeonly, DATE_FORMAT(SaalEnde,\'%H:%i:%s\') as SaalEnde_Timeonly', '', 'OPDatum', $this->config->general->importAmount);
         $this->progressBar->init(count($data));
 
         foreach ($data as $op) {
@@ -292,10 +292,16 @@ class Worker {
             $opStart = $op['OPStart'];
             $opEnd = $op['OPEnde'];
             $opPlanned = intval($op['Zeitprognose']);
+            $opSaalStart = $op['SaalStart'];
+            $opSaalEnd = $op['SaalEnde'];
+            $opSaalStartTimeonly = $op['SaalStart_Timeonly'];
+            $opSaalEndTimeonly = $op['SaalEnde_Timeonly'];
 
             $opANABereit = Utility::convertDateTime($opANABereit);
             $opStart = Utility::convertDateTime($opStart);
             $opEnd = Utility::convertDateTime($opEnd);
+            $opSaalStart = Utility::convertDateTime($opSaalStart);
+            $opSaalEnd = Utility::convertDateTime($opSaalEnd);
 
             // waiting time
             $minWaiting = null;
@@ -326,8 +332,16 @@ class Worker {
             $values = array(
                 '_time_waiting_ANABereit_to_OPStart' => $minWaiting,
                 '_time_OP' => $minOp,
-                '_timediff_OP_planned' => $minDiffPlanned
+                '_timediff_OP_planned' => $minDiffPlanned,
+                '_SaalStart' => null,
+                '_SaalEnde' => null
             );
+
+            // handle times with 00:00:00 as NULLS
+            if (!($opSaalStartTimeonly == '00:00:00' OR is_null($opSaalStartTimeonly)) AND !($opSaalEndTimeonly == '00:00:00' OR is_null($opSaalEndTimeonly))) {
+                $values['_SaalStart'] = $opSaalStart->format('Y-m-d H:i:s');
+                $values['_SaalEnde'] = $opSaalEnd->format('Y-m-d H:i:s');
+            }
 
             $this->db->insert(
                 'Operation',
