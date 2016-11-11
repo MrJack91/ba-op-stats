@@ -75,10 +75,13 @@ class Worker {
         echo '<br>';
 
         if ($this->config->general->doRealCommit) {
+            echo 'Commit ALL<br>';
             $this->db->transactionCommit();
         } else {
+            echo 'Rollback ALL<br>';
             $this->db->transactionRollback();
         }
+        echo '<br>';
 
         $mainDuration = round(Utility::trackTime('main'), 3);
         var_dump($mainDuration);
@@ -124,6 +127,55 @@ class Worker {
     }
 
     protected function typeCleanupInvalidTimes() {
+        $data = $this->dbHelper->loadAllData('ops_id, Zeitprognose, SaalStart, SaalEnde, DATE_FORMAT(SaalStart,\'%H:%i:%s\') as SaalStart_Timeonly, DATE_FORMAT(SaalEnde,\'%H:%i:%s\') as SaalEnde_Timeonly', '', 'OPDatum', $this->config->general->importAmount);
+        $this->progressBar->init(count($data));
+
+        foreach ($data as $op) {
+            $opId = $op['ops_id'];
+
+            $opPlanned = intval($op['Zeitprognose']);
+            $opPlanned = Utility::roundToAny($opPlanned);
+            if ($opPlanned > 480) {
+                $opPlanned = 0;
+            }
+            $opSaalStart = $op['SaalStart'];
+            $opSaalEnd = $op['SaalEnde'];
+            $opSaalStartTimeonly = $op['SaalStart_Timeonly'];
+            $opSaalEndTimeonly = $op['SaalEnde_Timeonly'];
+
+            $opSaalStart = Utility::convertDateTime($opSaalStart);
+            $opSaalEnd = Utility::convertDateTime($opSaalEnd);
+
+            // if op planned is 0, convert back to null
+            if ($opPlanned == 0) {
+                $opPlanned = null;
+            }
+            $values = array(
+                '_SaalStart' => null,
+                '_SaalEnde' => null,
+                '_Zeitprognose' => $opPlanned
+            );
+
+            // handle times with 00:00:00 as NULLS
+            if (!($opSaalStartTimeonly == '00:00:00' OR is_null($opSaalStartTimeonly)) AND !($opSaalEndTimeonly == '00:00:00' OR is_null($opSaalEndTimeonly))) {
+                $values['_SaalStart'] = $opSaalStart->format('Y-m-d H:i:s');
+                $values['_SaalEnde'] = $opSaalEnd->format('Y-m-d H:i:s');
+            }
+
+            $this->db->insert(
+                'Operation',
+                $values,
+                'WHERE ops_id = ' . $opId
+            );
+
+            $this->progressBar->addStep();
+        }
+
+        $this->progressBar->finish();
+
+
+        echo '<br>';
+        echo 'mark invalid times<br>';
         // reset all invalid times
         $sql = '
             UPDATE Operation
@@ -321,26 +373,18 @@ class Worker {
      * Adds the time between different operation stages
      */
     protected function typeAddTimeDiff() {
-        $data = $this->dbHelper->loadAllData('ops_id, ANABereit, OPStart, OPEnde, Zeitprognose, SaalStart, SaalEnde, DATE_FORMAT(SaalStart,\'%H:%i:%s\') as SaalStart_Timeonly, DATE_FORMAT(SaalEnde,\'%H:%i:%s\') as SaalEnde_Timeonly', '', 'OPDatum', $this->config->general->importAmount);
+        $data = $this->dbHelper->loadAllData('ops_id, ANABereit, OPStart, OPEnde, _Zeitprognose, _SaalStart, _SaalEnde', '', 'OPDatum', $this->config->general->importAmount);
         $this->progressBar->init(count($data));
 
         foreach ($data as $op) {
             $opId = $op['ops_id'];
 
-            // waiting time
             $opANABereit = $op['ANABereit'];
             $opStart = $op['OPStart'];
             $opEnd = $op['OPEnde'];
-            $opPlanned = intval($op['Zeitprognose']);
-            $opPlanned = Utility::roundToAny($opPlanned);
-            if ($opPlanned > 480) {
-                $opPlanned = 0;
-            }
-
-            $opSaalStart = $op['SaalStart'];
-            $opSaalEnd = $op['SaalEnde'];
-            $opSaalStartTimeonly = $op['SaalStart_Timeonly'];
-            $opSaalEndTimeonly = $op['SaalEnde_Timeonly'];
+            $opPlanned = intval($op['_Zeitprognose']);
+            $opSaalStart = $op['_SaalStart'];
+            $opSaalEnd = $op['_SaalEnde'];
 
             $opANABereit = Utility::convertDateTime($opANABereit);
             $opStart = Utility::convertDateTime($opStart);
@@ -371,27 +415,23 @@ class Worker {
                 if ($opPlanned > 0) {
                     $minDiffPlanned = $opPlanned - $minOp;
                 }
-
             }
 
-            // if op planned is 0, convert back to null
-            if ($opPlanned == 0) {
-                $opPlanned = null;
+            // saal time
+            if (!is_null($opSaalStart) && !is_null($opSaalEnd)) {
+                $diff = $opSaalStart->diff($opSaalEnd);
+                $minSaal = $diff->days*1440 + $diff->h*60 + $diff->i;
+                if ($diff->invert) {
+                    $minSaal = $minSaal * (-1);
+                }
             }
+
             $values = array(
                 '_time_waiting_ANABereit_to_OPStart' => $minWaiting,
+                '_time_Saal' => $minSaal,
                 '_time_OP' => $minOp,
-                '_timediff_OP_planned' => $minDiffPlanned,
-                '_SaalStart' => null,
-                '_SaalEnde' => null,
-                '_Zeitprognose' => $opPlanned
+                '_timediff_OP_planned' => $minDiffPlanned
             );
-
-            // handle times with 00:00:00 as NULLS
-            if (!($opSaalStartTimeonly == '00:00:00' OR is_null($opSaalStartTimeonly)) AND !($opSaalEndTimeonly == '00:00:00' OR is_null($opSaalEndTimeonly))) {
-                $values['_SaalStart'] = $opSaalStart->format('Y-m-d H:i:s');
-                $values['_SaalEnde'] = $opSaalEnd->format('Y-m-d H:i:s');
-            }
 
             $this->db->insert(
                 'Operation',
