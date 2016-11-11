@@ -373,7 +373,7 @@ class Worker {
      * Adds the time between different operation stages
      */
     protected function typeAddTimeDiff() {
-        $data = $this->dbHelper->loadAllData('ops_id, ANABereit, OPStart, OPEnde, _Zeitprognose, _SaalStart, _SaalEnde', '', 'OPDatum', $this->config->general->importAmount);
+        $data = $this->dbHelper->loadAllData('ops_id, ANABereit, OPStart, OPEnde, _Zeitprognose, _SaalStart, _SaalEnde', '_invalidTime = 0', 'OPDatum', $this->config->general->importAmount);
         $this->progressBar->init(count($data));
 
         foreach ($data as $op) {
@@ -418,11 +418,19 @@ class Worker {
             }
 
             // saal time
+            $minSaal = null;
             if (!is_null($opSaalStart) && !is_null($opSaalEnd)) {
-                $diff = $opSaalStart->diff($opSaalEnd);
-                $minSaal = $diff->days*1440 + $diff->h*60 + $diff->i;
-                if ($diff->invert) {
-                    $minSaal = $minSaal * (-1);
+                // if set op saal must smaller den op start
+                if ($opSaalStart <= $opStart) {
+                    $diff = $opSaalStart->diff($opSaalEnd);
+                    $minSaal = $diff->days*1440 + $diff->h*60 + $diff->i;
+                    if ($diff->invert) {
+                        $minSaal = $minSaal * (-1);
+                    }
+                    // avoid to long ops
+                    if ($minSaal > 780) {
+                        $minSaal = null;
+                    }
                 }
             }
 

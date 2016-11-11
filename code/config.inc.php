@@ -20,12 +20,12 @@ $config->db->utf8Decode = false;
 $config->general = new stdClass();
 
 // dev
-$config->general->importAmount = 4000;
-$config->general->doRealCommit = false;
+// $config->general->importAmount = 4000;
+// $config->general->doRealCommit = false;
 
 // live
-// $config->general->importAmount = 1000000;
-// $config->general->doRealCommit = true;
+$config->general->importAmount = 1000000;
+$config->general->doRealCommit = true;
 
 // possible type values: 'initialImport', 'cleanupInvalidTimes', 'addAge', 'addReoperation', 'addBmi', 'addTimeDiff'
 $config->general->importTypes = array('xx');

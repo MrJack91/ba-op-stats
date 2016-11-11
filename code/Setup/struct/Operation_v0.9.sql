@@ -3,7 +3,7 @@
 -- http://www.phpmyadmin.net
 --
 -- Host: localhost:3306
--- Erstellungszeit: 11. Nov 2016 um 12:46
+-- Erstellungszeit: 11. Nov 2016 um 13:39
 -- Server-Version: 5.5.42
 -- PHP-Version: 7.0.0
 
@@ -99,7 +99,7 @@ CREATE TABLE `Operation` (
   `_SaalStart` datetime DEFAULT NULL,
   `_SaalEnde` datetime DEFAULT NULL,
   `_time_waiting_ANABereit_to_OPStart` int(11) DEFAULT NULL,
-  `_time_Saal` datetime DEFAULT NULL,
+  `_time_Saal` int(11) DEFAULT NULL,
   `_time_OP` int(11) DEFAULT NULL,
   `_Zeitprognose` int(11) DEFAULT NULL,
   `_timediff_OP_planned` int(11) DEFAULT NULL
