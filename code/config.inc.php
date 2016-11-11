@@ -2,7 +2,7 @@
 
 // max 30min
 set_time_limit(1800);
-// ini_set('memory_limit', '300M');
+ini_set('memory_limit', '300M');
 
 
 $config = new stdClass();
@@ -27,9 +27,7 @@ $config->general->doRealCommit = false;
 // $config->general->importAmount = 1000000;
 // $config->general->doRealCommit = true;
 
-// possible type values: 'initialImport', 'addAge', 'addReoperation', 'addBmi', 'addTimeDiff'
+// possible type values: 'initialImport', 'cleanupInvalidTimes', 'addAge', 'addReoperation', 'addBmi', 'addTimeDiff'
 $config->general->importTypes = array('xx');
-// $config->general->importTypes = array('initialImport');
-// $config->general->importTypes = array('addAge', 'addReoperation', 'addBmi', 'addTimeDiff');
-// $config->general->importTypes = array('initialImport', 'addAge', 'addReoperation', 'addBmi', 'addTimeDiff');
+// $config->general->importTypes = array('initialImport', 'cleanupInvalidTimes', 'addAge', 'addReoperation', 'addBmi', 'addTimeDiff');
 

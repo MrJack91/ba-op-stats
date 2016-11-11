@@ -102,4 +102,9 @@ class Utility {
         return $bmi;
     }
 
+    /**  */
+    static function roundToAny($n, $x=5) {
+        // return (round($n)%$x === 0) ? round($n) : round(($n+$x/2)/$x)*$x; // Src: http://stackoverflow.com/a/4133893
+        return $x * round($n / $x);
+    }
 }

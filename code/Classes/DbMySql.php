@@ -99,6 +99,7 @@ class DbMySql {
         return $result;
     }
 
+    /*
     public function query($sql) {
         $result = $this->host->query($sql);
 
@@ -108,6 +109,7 @@ class DbMySql {
         }
         return $data;
     }
+    */
 
     /**
      * manage insert/update

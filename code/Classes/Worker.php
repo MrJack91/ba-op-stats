@@ -123,6 +123,46 @@ class Worker {
         }
     }
 
+    protected function typeCleanupInvalidTimes() {
+        // reset all invalid times
+        $sql = '
+            UPDATE Operation
+            SET _invalidTime = 0;
+        ';
+        $this->db->exec($sql);
+
+        // alle invaliden Zeiten (entspricht allen minus den validen)
+        $sql = '
+            SELECT ops_id
+            FROM Operation
+            WHERE ops_id NOT IN (
+                SELECT ops_id
+                FROM Operation
+                WHERE
+                    (ANAStart IS NOT NULL) AND (ANABereit IS NOT NULL) AND (ANAEnde IS NOT NULL)
+                    AND ANAStart <= ANABereit
+                    AND ANABereit <= OPStart
+                    AND OPStart <= OPEnde
+                    AND OPEnde <= PatFreigabe
+                    AND OPEnde <= ANAEnde
+                    AND (OPEnde <= _SaalEnde OR _SaalEnde IS NULL)
+            )
+        ';
+        $ops = $this->db->exec($sql);
+        $opsIds = array();
+        foreach ($ops as $op) {
+            $opsIds[]  = intval($op['ops_id']);
+        }
+        $sql = '
+            UPDATE Operation
+            SET _invalidTime = 1
+            WHERE ops_id IN (
+              '.implode(', ', $opsIds).'
+            )
+        ';
+        $this->db->exec($sql);
+    }
+
     /**
      * Calc the age of the patient in different units
      */
@@ -292,6 +332,11 @@ class Worker {
             $opStart = $op['OPStart'];
             $opEnd = $op['OPEnde'];
             $opPlanned = intval($op['Zeitprognose']);
+            $opPlanned = Utility::roundToAny($opPlanned);
+            if ($opPlanned > 480) {
+                $opPlanned = 0;
+            }
+
             $opSaalStart = $op['SaalStart'];
             $opSaalEnd = $op['SaalEnde'];
             $opSaalStartTimeonly = $op['SaalStart_Timeonly'];
@@ -329,12 +374,17 @@ class Worker {
 
             }
 
+            // if op planned is 0, convert back to null
+            if ($opPlanned == 0) {
+                $opPlanned = null;
+            }
             $values = array(
                 '_time_waiting_ANABereit_to_OPStart' => $minWaiting,
                 '_time_OP' => $minOp,
                 '_timediff_OP_planned' => $minDiffPlanned,
                 '_SaalStart' => null,
-                '_SaalEnde' => null
+                '_SaalEnde' => null,
+                '_Zeitprognose' => $opPlanned
             );
 
             // handle times with 00:00:00 as NULLS
