@@ -94,6 +94,19 @@ class DbHelper {
 		}
 	}
 
+	public function mapMinMayValues($level) {
+		// saves problems from past
+		$nLevel = 0;
+		switch ($level) {
+			case 'min':
+				// $nLevel = 1;
+				break;
+			case 'may':
+				$nLevel = 1;
+				break;
+		}
+		return $nLevel;
+	}
 
 	/**
 	 * DbHelper constructor.
@@ -305,18 +318,7 @@ class DbHelper {
 				if (strlen($val) > 0) {
 					$return = 1;
 				}
-
-				// saves problems from past
-				$nLevel = null;
-				switch ($level) {
-					case 'min':
-						$nLevel = 1;
-						break;
-					case 'may':
-						$nLevel = 2;
-						break;
-				}
-				$values['HT_problems'] = $nLevel;
+				$values['HT_problems'] = $this->mapMinMayValues($level);
 
 				return $return;
 			}),
@@ -330,18 +332,7 @@ class DbHelper {
 				if (strlen($val) > 0) {
 					$return = 1;
 				}
-
-				// saves problems from past
-				$nLevel = null;
-				switch ($level) {
-					case 'min':
-						$nLevel = 1;
-						break;
-					case 'may':
-						$nLevel = 2;
-						break;
-				}
-				$values['Raucher_problems'] = $nLevel;
+				$values['Raucher_problems'] = $this->mapMinMayValues($level);
 
 				return $return;
 			}),
@@ -355,18 +346,7 @@ class DbHelper {
 				if (strlen($val) > 0) {
 					$return = 1;
 				}
-
-				// saves problems from past
-				$nLevel = null;
-				switch ($level) {
-					case 'min':
-						$nLevel = 1;
-						break;
-					case 'may':
-						$nLevel = 2;
-						break;
-				}
-				$values['NI_problems'] = $nLevel;
+				$values['NI_problems'] = $this->mapMinMayValues($level);
 
 				return $return;
 			}),
