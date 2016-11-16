@@ -134,6 +134,7 @@ class Worker {
             $opId = $op['ops_id'];
 
             $opPlanned = intval($op['Zeitprognose']);
+            $opPlannedOrig = $opPlanned;
             $opPlanned = Utility::roundToAny($opPlanned);
             if ($opPlanned > 480) {
                 $opPlanned = 0;
@@ -146,8 +147,8 @@ class Worker {
             $opSaalStart = Utility::convertDateTime($opSaalStart);
             $opSaalEnd = Utility::convertDateTime($opSaalEnd);
 
-            // if op planned is 0, convert back to null
-            if ($opPlanned == 0) {
+            // if op planned is 0, convert back to null (avoid down rounding to null)
+            if ($opPlanned == 0 && $opPlannedOrig == 0) {
                 $opPlanned = null;
             }
             $values = array(
