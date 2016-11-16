@@ -141,7 +141,6 @@ class DbHelper {
 			'Zeitprognose' => array(array($this, 'intvalZeroToNull')),
 			'OperateurLevel' => array(array($this, 'intval')),
 			'AnaesthLevel' => array(array($this, 'intval')),
-			'PatGender' => array(array($this, 'intval')),
 			'ASARisk' => array(array($this, 'intvalZeroToNull')),
 			'Gewicht' => array(array($this, 'intvalZeroToNull')),
 			'Groesse' => array(array($this, 'intvalZeroToNull')),
@@ -152,6 +151,12 @@ class DbHelper {
 			'SGARCode3' => array(array($this, 'nullForEmpty')),
 			'Hauptoperateur' => array(array($this, 'nullForEmpty')),
 			'ANAOA' => array(array($this, 'nullForEmpty')),
+
+			'PatGender' => array(function ($val) {
+				$val = intval($val);
+				$val--; // remap man = 0; woman = 1;
+				return $val;
+			}),
 
 
 			'Wochentag' => array(function ($val) {
