@@ -333,9 +333,14 @@ class DbHelper {
 				$level = $csv[++$pos];
 
 				// return if person has currently problems
-				$return = 0;
-				if (strlen($val) > 0) {
-					$return = 1;
+				$return = NULL;
+				switch ($val) {
+					case 'NR';
+						$return = 0;
+						break;
+					case 'R':
+						$return = 1;
+						break;
 				}
 				$values['Raucher_problems'] = $this->mapMinMayValues($level);
 
