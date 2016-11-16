@@ -134,11 +134,11 @@ class Worker {
             $opId = $op['ops_id'];
 
             $opPlanned = intval($op['Zeitprognose']);
-            $opPlannedOrig = $opPlanned;
-            $opPlanned = Utility::roundToAny($opPlanned);
             if ($opPlanned > 480) {
                 $opPlanned = 0;
             }
+            $opPlannedOrig = $opPlanned;
+            $opPlanned = Utility::roundToAny($opPlanned);
             $opSaalStart = $op['SaalStart'];
             $opSaalEnd = $op['SaalEnde'];
             $opSaalStartTimeonly = $op['SaalStart_Timeonly'];
