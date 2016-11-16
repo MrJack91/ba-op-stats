@@ -96,10 +96,10 @@ class DbHelper {
 
 	public function mapMinMayValues($level) {
 		// saves problems from past
-		$nLevel = 0;
+		$nLevel = NULL;
 		switch ($level) {
 			case 'min':
-				// $nLevel = 1;
+				$nLevel = 0;
 				break;
 			case 'may':
 				$nLevel = 1;
