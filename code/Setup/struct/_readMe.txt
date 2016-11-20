@@ -5,3 +5,4 @@ v0.6	change last/next op to *Days
 v0.7	add ht,raucher,ni problems, correct null values for numbers with empty values
 v0.8	fix _weight, _height, _bmi, _SaalStart, _SaalEnde
 v0.9	add: _Zeitprognose, _invalidTime, _saal_Time
+v1.0	add: text fields (Wochentag, ANAArt, Dringlichkeit, Urteil)

@@ -160,6 +160,7 @@ class DbHelper {
 
 
 			'Wochentag' => array(function ($val) {
+				$values['Wochentag_Text'] = $val;
 				switch ($val) {
 					case 'Montag':
 						return 1;
@@ -213,6 +214,7 @@ class DbHelper {
 			}),
 
 			'ANAArt' => array(function ($val, $fieldName, &$values) {
+				$values['ANAArt_Text'] = $val;
 				switch ($val) {
 					case 'AN':
 						return 1;   // Allgemeinanästhesie
@@ -234,6 +236,7 @@ class DbHelper {
 			}),
 
 			'Dringlichkeit' => array(function ($val, $fieldName, &$values) {
+				$values['Dringlichkeit_Text'] = $val;
 				switch ($val) {
 					case 'N!':
 						return 1;   // OP sehr dringend (unmittelbar notwendig)
@@ -362,6 +365,7 @@ class DbHelper {
 			}),
 
 			'Urteil' => array(function ($val, $fieldName, &$values, &$csv) {
+				$values['Urteil_Text'] = $val;
 				switch ($val) {
 					case 'leichter':
 						$val = 1;
