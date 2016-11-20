@@ -159,7 +159,7 @@ class DbHelper {
 			}),
 
 
-			'Wochentag' => array(function ($val) {
+			'Wochentag' => array(function ($val, $fieldName, &$values, &$opCsv, &$colPos, &$colParsePos) {
 				$values['Wochentag_Text'] = $val;
 				switch ($val) {
 					case 'Montag':
@@ -184,6 +184,7 @@ class DbHelper {
 						return 0;
 						break;
 				}
+				$values['Wochentag_Text'] = null;
 				return null;
 			}),
 
@@ -232,6 +233,7 @@ class DbHelper {
 						return 5;   // misslungene Regionalanästhesie
 						break;
 				}
+				$values['ANAArt_Text'] = null;
 				return null; // kA as Text
 			}),
 
@@ -251,6 +253,7 @@ class DbHelper {
 						return 4;   // Elektivoperation (geplant)
 						break;
 				}
+				$values['Dringlichkeit_Text'] = null;
 				return null;
 			}),
 
