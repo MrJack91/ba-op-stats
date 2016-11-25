@@ -274,7 +274,7 @@ class Worker {
                 if (!array_key_exists($key, $data)) {
                     continue;
                 }
-                $op2 = $data[$i+$indexAddon];
+                $op2 = $data[$key];
 
                 // check if same person (pid)
                 if ($opPid == $op2['PID']) {
@@ -452,6 +452,22 @@ class Worker {
         }
 
         $this->progressBar->finish();
+    }
+
+    protected function typeStats() {
+        echo '<pre>';
+        for ($i = 0; $i <= 1; $i++) {
+            $sql = '
+                SELECT count(*) as count
+                FROM Operation
+                WHERE _LastOpDays = '.$i.'
+                AND Dringlichkeit != 4 AND Dringlichkeit IS NOT NULL
+            ';
+            $return = $this->db->exec($sql);
+
+            echo "$i\t".$return[0]['count']."<br>";
+        }
+        echo '</pre>';
     }
 
 }
