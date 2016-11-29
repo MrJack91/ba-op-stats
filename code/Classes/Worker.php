@@ -344,7 +344,7 @@ class Worker {
                     }
                 }
 
-                if ($opHeight > 30 && $opHeight < 250) {
+                if ($opHeight > 30 && $opHeight < 245) {
                     $values['_Groesse'] = $opHeight;
                 }
                 if ($opWeight > 2 && $opWeight < 250) {
@@ -413,7 +413,7 @@ class Worker {
                     $minOp = $minOp * (-1);
                 }
 
-                if ($opPlanned > 0) {
+                if ($opPlanned >= 0) {
                     $minDiffPlanned = $opPlanned - $minOp;
                 }
             }

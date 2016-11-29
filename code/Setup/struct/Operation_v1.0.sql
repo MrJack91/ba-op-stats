@@ -3,7 +3,7 @@
 -- http://www.phpmyadmin.net
 --
 -- Host: localhost:3306
--- Erstellungszeit: 20. Nov 2016 um 12:06
+-- Erstellungszeit: 29. Nov 2016 um 11:30
 -- Server-Version: 5.5.42
 -- PHP-Version: 7.0.0
 
