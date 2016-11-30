@@ -126,6 +126,9 @@ class Worker {
         }
     }
 
+    /**
+     * Cleanup invalid times (zeitprognose, )
+     */
     protected function typeCleanupInvalidTimes() {
         $data = $this->dbHelper->loadAllData('ops_id, Zeitprognose, SaalStart, SaalEnde, DATE_FORMAT(SaalStart,\'%H:%i:%s\') as SaalStart_Timeonly, DATE_FORMAT(SaalEnde,\'%H:%i:%s\') as SaalEnde_Timeonly', '', 'OPDatum', $this->config->general->importAmount);
         $this->progressBar->init(count($data));
@@ -383,7 +386,7 @@ class Worker {
             $opANABereit = $op['ANABereit'];
             $opStart = $op['OPStart'];
             $opEnd = $op['OPEnde'];
-            $opPlanned = intval($op['_Zeitprognose']);
+            $opPlanned = $op['_Zeitprognose'];
             $opSaalStart = $op['_SaalStart'];
             $opSaalEnd = $op['_SaalEnde'];
 
@@ -413,8 +416,9 @@ class Worker {
                     $minOp = $minOp * (-1);
                 }
 
-                if ($opPlanned >= 0) {
-                    $minDiffPlanned = $opPlanned - $minOp;
+                // skip null values, but allow values with 0
+                if (!is_null($opPlanned) && intval($opPlanned) >= 0) {
+                    $minDiffPlanned = intval($opPlanned) - $minOp;
                 }
             }
 
