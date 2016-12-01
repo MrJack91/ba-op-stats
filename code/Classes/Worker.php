@@ -458,6 +458,64 @@ class Worker {
         $this->progressBar->finish();
     }
 
+    /**
+     * Mark the first occurred record per pid
+     */
+    protected function typeMarkFirstPIDRecord() {
+        // reset all
+        $sql = '
+            UPDATE Operation
+            SET _firstOccurredByPID = 0;
+        ';
+        $this->db->exec($sql);
+
+        // search all first occurred
+        $sql = '
+            SELECT MIN(ops_id) as opsIdToMark, PID
+            FROM Operation
+            GROUP BY PID
+            ORDER BY OPDatum, ops_id
+        ';
+        $ops = $this->db->exec($sql);
+        $opsIds = array();
+        foreach ($ops as $op) {
+            $opsIds[]  = intval($op['opsIdToMark']);
+        }
+        // update them
+        $sql = '
+            UPDATE Operation
+            SET _firstOccurredByPID = 1
+            WHERE ops_id IN (
+              '.implode(', ', $opsIds).'
+            )
+        ';
+        $this->db->exec($sql);
+    }
+
+
+    /**
+     * Template for additional type
+     */
+    protected function typeName() {
+        $data = $this->dbHelper->loadAllData('ops_id, ANABereit, OPStart, OPEnde, _Zeitprognose, _SaalStart, _SaalEnde', '_invalidTime = 0', 'OPDatum', $this->config->general->importAmount);
+        $this->progressBar->init(count($data));
+
+        foreach ($data as $op) {
+            $values = array();
+            $opId = $op['ops_id'];
+
+            $this->db->insert(
+                'Operation',
+                $values,
+                'WHERE ops_id = ' . $opId
+            );
+
+            $this->progressBar->addStep();
+        }
+
+        $this->progressBar->finish();
+    }
+
     protected function typeStats() {
         echo '<pre>';
         for ($i = 0; $i <= 1; $i++) {
