@@ -377,24 +377,31 @@ class Worker {
      * Adds the time between different operation stages
      */
     protected function typeAddTimeDiff() {
-        $data = $this->dbHelper->loadAllData('ops_id, ANABereit, OPStart, OPEnde, _Zeitprognose, _SaalStart, _SaalEnde', '_invalidTime = 0', 'OPDatum', $this->config->general->importAmount);
+        $data = $this->dbHelper->loadAllData('ops_id, ANAStart, ANABereit, OPStart, OPEnde, PatFreigabe, ANAEnde, _Zeitprognose, _SaalStart, _SaalEnde', '_invalidTime = 0', 'OPDatum', $this->config->general->importAmount);
         $this->progressBar->init(count($data));
 
         foreach ($data as $op) {
             $opId = $op['ops_id'];
 
+            $opANAStart = $op['ANAStart'];
             $opANABereit = $op['ANABereit'];
             $opStart = $op['OPStart'];
             $opEnd = $op['OPEnde'];
+            $opPatFreigabe = $op['PatFreigabe'];
+            $opANAEnde = $op['ANAEnde'];
             $opPlanned = $op['_Zeitprognose'];
             $opSaalStart = $op['_SaalStart'];
             $opSaalEnd = $op['_SaalEnde'];
 
+
+            $opANAStart = Utility::convertDateTime($opANAStart);
             $opANABereit = Utility::convertDateTime($opANABereit);
             $opStart = Utility::convertDateTime($opStart);
             $opEnd = Utility::convertDateTime($opEnd);
             $opSaalStart = Utility::convertDateTime($opSaalStart);
             $opSaalEnd = Utility::convertDateTime($opSaalEnd);
+            $opPatFreigabe = Utility::convertDateTime($opPatFreigabe);
+            $opANAEnde = Utility::convertDateTime($opANAEnde);
 
             // waiting time
             $minWaiting = null;
@@ -439,9 +446,38 @@ class Worker {
                 }
             }
 
+            // Vorbereitungszeit: PatFreigabe - ANABereit
+            $minPrepare = null;
+            if (!is_null($opANABereit) && !is_null($opPatFreigabe) && $opPatFreigabe->format('H:i:s') !== '00:00:00') {
+                $diff = $opANABereit->diff($opPatFreigabe);
+                $minPrepare = $diff->days*1440 + $diff->h*60 + $diff->i;
+                if ($diff->invert) {
+                    $minPrepare = $minPrepare * (-1);
+                }
+                // avoid to long preparation
+                if ($minPrepare == 0 || $minPrepare > 1000) {
+                    $minPrepare = null;
+                }
+            }
+
+            // ANATime: ANAEnde - ANAStart
+            $minANATime = null;
+            if (!is_null($opANAStart) && !is_null($opANAEnde) && $opANAEnde->format('H:i:s') !== '00:00:00') {
+                $diff = $opANAStart->diff($opANAEnde);
+                $minANATime = $diff->days*1440 + $diff->h*60 + $diff->i;
+                if ($diff->invert) {
+                    $minANATime = $minANATime * (-1);
+                }
+                if ($minANATime == 0) {
+                    $minANATime = null;
+                }
+            }
+
             $values = array(
                 '_time_waiting_ANABereit_to_OPStart' => $minWaiting,
                 '_time_Saal' => $minSaal,
+                '_time_ANATime' => $minANATime,
+                '_time_Prepare' => $minPrepare,
                 '_time_OP' => $minOp,
                 '_timediff_OP_planned' => $minDiffPlanned
             );

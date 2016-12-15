@@ -20,7 +20,7 @@ $config->db->utf8Decode = false;
 $config->general = new stdClass();
 
 // dev
-// $config->general->importAmount = 4000;
+// $config->general->importAmount = 100;
 // $config->general->doRealCommit = false;
 
 // live
