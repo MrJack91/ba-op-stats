@@ -62,6 +62,12 @@ class DbHelper {
 		}
 	}
 
+	public function strtoupper($val) {
+		return strtoupper($val);
+	}
+
+
+
 	/**
 	 * Prase a date into sql valid format
 	 * @param $val
@@ -146,9 +152,9 @@ class DbHelper {
 			'Groesse' => array(array($this, 'intvalZeroToNull')),
 
 			// null for empty string
-			'SGARCode1' => array(array($this, 'nullForEmpty')),
-			'SGARCode2' => array(array($this, 'nullForEmpty')),
-			'SGARCode3' => array(array($this, 'nullForEmpty')),
+			'SGARCode1' => array(array($this, 'strtoupper'), array($this, 'nullForEmpty')),
+			'SGARCode2' => array(array($this, 'strtoupper'), array($this, 'nullForEmpty')),
+			'SGARCode3' => array(array($this, 'strtoupper'), array($this, 'nullForEmpty')),
 			'Hauptoperateur' => array(array($this, 'nullForEmpty')),
 			'ANAOA' => array(array($this, 'nullForEmpty')),
 
