@@ -7,3 +7,4 @@ v0.8	fix _weight, _height, _bmi, _SaalStart, _SaalEnde
 v0.9	add: _Zeitprognose, _invalidTime, _saal_Time
 v1.0	add: text fields (Wochentag, ANAArt, Dringlichkeit, Urteil)
 v1.1	add: _time_Prepare (PatFreigabe - ANABereit), _time_ANATime (ANAEnde - ANAStart)
+v1.2	add: _mistyTime, _time_minPillarTime

@@ -162,8 +162,11 @@ class Worker {
 
             // handle times with 00:00:00 as NULLS
             if (!($opSaalStartTimeonly == '00:00:00' OR is_null($opSaalStartTimeonly)) AND !($opSaalEndTimeonly == '00:00:00' OR is_null($opSaalEndTimeonly))) {
-                $values['_SaalStart'] = $opSaalStart->format('Y-m-d H:i:s');
-                $values['_SaalEnde'] = $opSaalEnd->format('Y-m-d H:i:s');
+                // op start must be smaller
+                if ($opSaalStart < $opSaalEnd) {
+                    $values['_SaalStart'] = $opSaalStart->format('Y-m-d H:i:s');
+                    $values['_SaalEnde'] = $opSaalEnd->format('Y-m-d H:i:s');
+                }
             }
 
             $this->db->insert(
@@ -186,6 +189,7 @@ class Worker {
             SET _invalidTime = 0;
         ';
         $this->db->exec($sql);
+
 
         // alle invaliden Zeiten (entspricht allen minus den validen)
         $sql = '
@@ -446,7 +450,7 @@ class Worker {
                 }
             }
 
-            // Vorbereitungszeit: PatFreigabe - ANABereit
+            // Vorbereitungszeit (reale Säulenzeit): PatFreigabe - ANABereit
             $minPrepare = null;
             if (!is_null($opANABereit) && !is_null($opPatFreigabe) && $opPatFreigabe->format('H:i:s') !== '00:00:00') {
                 $diff = $opANABereit->diff($opPatFreigabe);
@@ -457,6 +461,20 @@ class Worker {
                 // avoid to long preparation
                 if ($minPrepare == 0 || $minPrepare > 1000) {
                     $minPrepare = null;
+                }
+            }
+
+            // minimale Säulenzeit: PatFreigabe - SaalStart
+            $minMinPillarTime = null;
+            if (!is_null($opSaalStart) && !is_null($opPatFreigabe) && $opPatFreigabe->format('H:i:s') !== '00:00:00') {
+                $diff = $opSaalStart->diff($opPatFreigabe);
+                $minMinPillarTime = $diff->days*1440 + $diff->h*60 + $diff->i;
+                if ($diff->invert) {
+                    $minMinPillarTime = $minMinPillarTime * (-1);
+                }
+                // avoid to long preparation
+                if ($minMinPillarTime == 0 || $minMinPillarTime > 720) {
+                    $minMinPillarTime = null;
                 }
             }
 
@@ -473,10 +491,12 @@ class Worker {
                 }
             }
 
+
             $values = array(
                 '_time_waiting_ANABereit_to_OPStart' => $minWaiting,
                 '_time_Saal' => $minSaal,
                 '_time_ANATime' => $minANATime,
+                '_time_minPillarTime' => $minMinPillarTime,
                 '_time_Prepare' => $minPrepare,
                 '_time_OP' => $minOp,
                 '_timediff_OP_planned' => $minDiffPlanned

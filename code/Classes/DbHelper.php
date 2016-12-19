@@ -85,16 +85,31 @@ class DbHelper {
 	/**
 	 * Prase a date into sql valid format
 	 * @param $val
+	 * @param bool $mistyDate date parsing result in different date as input (e.g. more than 24 hours etc.)
 	 * @return mixed
 	 */
-	public function parseDateTime($val) {
+	public function parseDateTime($val, $fieldName, &$values, &$opCsv, &$colPos, &$colParsePos) {
 		if (strlen($val) == 11) {
-			// $val .= '0';
+			// echo 'date is too short: ' . $val . '<br>';
 			$val = str_pad($val, 12, '0');
 		}
 		$date = DateTime::createFromFormat('YmdHi', $val);
 		if ($date) {
-			return $date->format('Y-m-d H:i:s');
+			$dateFormat = $date->format('Y-m-d H:i:s');
+			// verify date
+			/*
+			$valYear = substr($val, 0, 4);
+			$valMonth = substr($val, 4, 2);
+			$valDay = substr($val, 6, 2);
+			$valHour = substr($val, 8, 2);
+			$valMin = substr($val, 10, 2);
+			*/
+
+			if ($date->format('YmdHi') != $val) {
+				$values['_mistyDate'] .= $fieldName . ': ' . $val . '(date: ' . $date->format('YmdHi') . '); ';
+			}
+
+			return $dateFormat;
 		} else {
 			return null;
 		}
@@ -403,8 +418,9 @@ class DbHelper {
 	public function importOp($opCsv, $row) {
 		$this->stateFlag = 0;
 		$values = array(
-			// 'csvLinePos' => $row,
-			// 'csvData' => json_encode($opCsv)
+			'csvLinePos' => $row,
+			'csvData' => json_encode($opCsv),
+			'_mistyDate' => ''
 		);
 
 		if (json_last_error() > 0) {

@@ -81,7 +81,7 @@ class Utility {
      * @return \DateTime
      */
     static function convertDateTime($date) {
-        if (!is_object($date) || get_class($date) !== 'DateTime') {
+        if (!is_null($date) && (!is_object($date) || get_class($date) !== 'DateTime')) {
             $date = new \DateTime($date);
         }
         return $date;
