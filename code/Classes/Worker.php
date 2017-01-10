@@ -412,6 +412,7 @@ class Worker {
             if ($opANABereit && $opStart) {
                 $diff = $opANABereit->diff($opStart);
                 $minWaiting = $diff->days*1440 + $diff->h*60 + $diff->i;
+                // be sure to get negative values
                 if ($diff->invert) {
                     $minWaiting = $minWaiting * (-1);
                 }
@@ -587,5 +588,93 @@ class Worker {
         }
         echo '</pre>';
     }
+
+
+
+    protected function typeTimeSeries() {
+
+        $data = $this->db->exec("
+            SELECT OPDatum,
+                count(*) as 'OPs',
+                sum(IF(Dringlichkeit = 1, 1, 0)) as 'N!',
+                sum(IF(Dringlichkeit = 2, 1, 0)) as 'N',
+                sum(IF(Dringlichkeit = 3, 1, 0)) as 'oN'
+            FROM Operation
+            WHERE Dringlichkeit_Text IN ('N!', 'N', 'oN')
+            GROUP BY OPDatum
+            ORDER BY OPDatum
+        ");
+
+        $date = new \DateTime('2006-01-01');
+
+        $stop = false;
+        $i = 0;
+        $cursor = 0;
+        $output = array();
+        $currentYear = 0;
+        while ($stop == false) {
+        // while ($i < 500) {
+            $i++;
+
+            $opCount = 0;
+            $opDate = null;
+            if (isset($data[$cursor])) {
+                $current = $data[$cursor];
+                // var_dump($current);
+                $opDate = $current['OPDatum'];
+                $opDate = Utility::convertDateTime($opDate);
+                if ($opDate == $date) {
+                    $opCount = $current['OPs'];
+                    $cursor++;
+                }
+            }
+
+            $printYear = '';
+            if ($date->format('Y') !== $currentYear) {
+                $currentYear = $date->format('Y');
+                $printYear = $currentYear;
+            }
+
+            // build output array
+            $output[] = array(
+                $printYear,
+                $i,
+                $date->format('d.m.Y'),
+                $date->format('d.m.Y'),
+                $opCount
+            );
+
+            if ($date->format('d.m.Y') == '30.06.2016') {
+                $stop = true;
+            }
+            $date->add(new \DateInterval('P1D'));
+        }
+
+        $filepointer = fopen('php://output', 'w');
+        foreach ($output as $line) {
+            fputcsv($filepointer, $line, ';', "\"");
+        }
+
+
+        exit();
+
+    }
+
+    protected function typeExcelHelper() {
+
+        $dict = [];
+        for ($i = 99; $i<=4000; $i++) {
+        // for ($i = 99; $i<=4000; $i=$i+365) {
+            //for ($i = 8; $i<=127; $i=$i+12) {
+            $dict[] = '=E'.$i.'-I$'.$i;
+        }
+
+        $val = implode("\n", $dict);
+
+        echo '<textarea cols="200" rows="20">'.$val.'</textarea><br>';
+
+    }
+
+
 
 }

@@ -28,7 +28,8 @@ $config->general->importAmount = 1000000;
 $config->general->doRealCommit = true;
 
 // possible type values: 'initialImport', 'cleanupInvalidTimes', 'addAge', 'addReoperation', 'addBmi', 'addTimeDiff', 'markFirstPIDRecord'
-$config->general->importTypes = array('xx');
+//  helpers: timeSeries, excelHelper
+$config->general->importTypes = array('excelHelper');
 // $config->general->importTypes = array('initialImport');
 // $config->general->importTypes = array('initialImport', 'cleanupInvalidTimes', 'addAge', 'addReoperation', 'addBmi', 'addTimeDiff', 'markFirstPIDRecord');
 
