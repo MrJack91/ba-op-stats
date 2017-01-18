@@ -24,12 +24,12 @@ $config->general = new stdClass();
 // $config->general->doRealCommit = false;
 
 // live
-$config->general->importAmount = 1000000;
-$config->general->doRealCommit = true;
+$config->general->importAmount = 100000;
+$config->general->doRealCommit = false;
 
 // possible type values: 'initialImport', 'cleanupInvalidTimes', 'addAge', 'addReoperation', 'addBmi', 'addTimeDiff', 'markFirstPIDRecord'
 //  helpers: timeSeries, excelHelper
-$config->general->importTypes = array('excelHelper');
+$config->general->importTypes = array('initialImportCheck');
 // $config->general->importTypes = array('initialImport');
 // $config->general->importTypes = array('initialImport', 'cleanupInvalidTimes', 'addAge', 'addReoperation', 'addBmi', 'addTimeDiff', 'markFirstPIDRecord');
 

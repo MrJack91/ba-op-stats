@@ -33,6 +33,8 @@ class Worker {
 
     public $progressBar = null;
 
+    public $missingSgarCode3 = 0;
+
 	/**
      * @param $config stdClass
      */
@@ -124,6 +126,7 @@ class Worker {
             $this->progressBar->finish();
             fclose($handle);
         }
+        echo 'fixed sgarcode3: ' . $this->missingSgarCode3 . '<br>';
     }
 
     /**
@@ -674,6 +677,36 @@ class Worker {
         echo '<textarea cols="200" rows="20">'.$val.'</textarea><br>';
 
     }
+
+    /**
+     * Runs the inital import
+     */
+    protected function typeInitialImportCheck() {
+        // read and parse csv
+        $row = 0;
+        $filepath = 'Resources/Raw/Daten_01012006_bis_30062016.csv';
+        // $filepath = 'Resources/Raw/Daten_01012006_bis_30062016_mit_Schmerztherapie.csv';
+        if (($handle = fopen($filepath, 'r')) !== FALSE) {
+            $lines = min(intval(exec('wc -l ' . $filepath)-1), $this->config->general->importAmount);
+            $this->progressBar->init($lines);
+
+            while (($data = fgetcsv($handle, 100000, ';')) !== FALSE AND $row <= $this->config->general->importAmount) {
+                $row++;
+                // skip head line
+                if ($row == 1) continue;
+
+                if (count($data) <> 47) {
+                    echo count($data) . ' ('.$row.')<br>';
+                    // var_dump($data);
+                }
+                // $this->progressBar->addStep();
+            }
+            $this->progressBar->finish();
+            fclose($handle);
+        }
+        echo 'fixed sgarcode3: ' . $this->missingSgarCode3 . '<br>';
+    }
+
 
 
 

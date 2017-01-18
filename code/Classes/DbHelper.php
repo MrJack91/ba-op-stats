@@ -296,6 +296,7 @@ class DbHelper {
 					// go one col back and add verlegungsort again
 					$colPos -= 2;       // one col is missing, this was empty, so sub 2
 					$colParsePos -= 1;  // next col is
+					$this->worker->missingSgarCode3++;
 				}
 				return null;
 			}),
