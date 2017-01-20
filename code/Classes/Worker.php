@@ -708,6 +708,43 @@ class Worker {
     }
 
 
+    protected function typeLogParser() {
+        echo '<pre>';
 
+        // $filepath = '/Users/michael/Desktop/rapidminer/performance/kmeans/performance-all_10000_4attr.txt';
+        $filepath = '/Users/michael/Desktop/rapidminer/performance/02-kmeans/performance-kmeans_all_4attr.txt';
+        $log = file_get_contents($filepath);
+        $groupBy = $_REQUEST['groupBy'] ?? 3;
+
+        // inital
+        $pattern = "/(?:Davies Bouldin|Example distribution|Avg\. within centroid distance|Avg\. within cluster distance): (\-?\d\.?\d.*)/i";
+
+        echo 'groupBy: ' . $groupBy . "\n";
+        echo $filepath . "\n\n";
+
+        preg_match_all($pattern, $log, $matches);
+
+        $i = 0;
+        $line = array();
+        $result = array();
+        foreach ($matches[1] as $match) {
+            $line[] = $match;
+            $i++;
+            if ($i % $groupBy == 0) {
+                $result[] = implode("\t", $line);
+                $line = array();
+            }
+        }
+        echo implode("\n", $result) . "\n\n";
+
+
+
+        var_dump($pattern);
+        var_dump($matches);
+
+
+
+        echo '</pre>';
+    }
 
 }

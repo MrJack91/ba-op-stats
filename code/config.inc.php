@@ -28,8 +28,8 @@ $config->general->importAmount = 100000;
 $config->general->doRealCommit = false;
 
 // possible type values: 'initialImport', 'cleanupInvalidTimes', 'addAge', 'addReoperation', 'addBmi', 'addTimeDiff', 'markFirstPIDRecord'
-//  helpers: timeSeries, excelHelper
-$config->general->importTypes = array('initialImportCheck');
+//  helpers: timeSeries, excelHelper, logParser, initialImportCheck
+$config->general->importTypes = array('logParser');
 // $config->general->importTypes = array('initialImport');
 // $config->general->importTypes = array('initialImport', 'cleanupInvalidTimes', 'addAge', 'addReoperation', 'addBmi', 'addTimeDiff', 'markFirstPIDRecord');
 
