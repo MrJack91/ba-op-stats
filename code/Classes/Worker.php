@@ -712,7 +712,7 @@ class Worker {
         echo '<pre>';
 
         // $filepath = '/Users/michael/Desktop/rapidminer/performance/kmeans/performance-all_10000_4attr.txt';
-        $filepath = '/Users/michael/Desktop/rapidminer/performance/02-kmeans/performance-kmeans_all_4attr.txt';
+        $filepath = '/Users/michael/Desktop/rapidminer/performance-kmeans_all_normal.txt';
         $log = file_get_contents($filepath);
         $groupBy = $_REQUEST['groupBy'] ?? 3;
 
@@ -743,6 +743,37 @@ class Worker {
         var_dump($matches);
 
 
+
+        echo '</pre>';
+    }
+
+
+    protected function typeTimeSeriesMonthly() {
+        echo '<pre>';
+
+        $sql = "
+            SELECT DATE_FORMAT(OPDatum, '%y/%m') 'Jahr/Monat',
+              DATE_FORMAT(OPDatum, '%y') 'Jahr',
+              DATE_FORMAT(OPDatum, '%m') 'Monat',
+              count(*) as 'alle OPs'
+            FROM Operation
+            WHERE Dringlichkeit_Text IN ('N!', 'N', 'oN')
+            GROUP BY DATE_FORMAT(OPDatum, '%y/%m')
+            ORDER BY DATE_FORMAT(OPDatum, '%y/%m')";
+
+        $data = $this->db->exec($sql);
+
+        $i = 0;
+        foreach ($data as $month) {
+            $i++;
+            $amountOps = $month['alle OPs'];
+            $amountDays = cal_days_in_month(CAL_GREGORIAN, $month['Monat'], $month['Jahr']);
+            $correctByAmountOfDay = round($amountOps / $amountDays * 30);
+
+            // echo $amountOps . ' over ' . $amountDays . ' in ' . $month['Jahr'] . '/' . $month['Monat'] . " || " . $amountOps . " => " . $correctByAmountOfDay . "\n";
+            echo $i . "\t" . $month['Jahr'] . '/' . $month['Monat'] . "\t" . $correctByAmountOfDay . "\n";
+
+        }
 
         echo '</pre>';
     }

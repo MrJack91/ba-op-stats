@@ -20,16 +20,16 @@ $config->db->utf8Decode = false;
 $config->general = new stdClass();
 
 // dev
-// $config->general->importAmount = 100;
-// $config->general->doRealCommit = false;
-
-// live
-$config->general->importAmount = 100000;
+$config->general->importAmount = 100;
 $config->general->doRealCommit = false;
 
+// live
+// $config->general->importAmount = 100000;
+// $config->general->doRealCommit = false;
+
 // possible type values: 'initialImport', 'cleanupInvalidTimes', 'addAge', 'addReoperation', 'addBmi', 'addTimeDiff', 'markFirstPIDRecord'
-//  helpers: timeSeries, excelHelper, logParser, initialImportCheck
-$config->general->importTypes = array('logParser');
+//  helpers: timeSeries, excelHelper, logParser, initialImportCheck, timeSeriesMonthly
+$config->general->importTypes = array('timeSeriesMonthly');
 // $config->general->importTypes = array('initialImport');
 // $config->general->importTypes = array('initialImport', 'cleanupInvalidTimes', 'addAge', 'addReoperation', 'addBmi', 'addTimeDiff', 'markFirstPIDRecord');
 
