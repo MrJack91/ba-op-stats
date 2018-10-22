@@ -4,11 +4,10 @@ namespace Mha\BaOpsStats;
 use DateTime;
 
 /**
- * Class DbHelper
+ * Class ProgressBar
  * User: Michael Hadorn
  * Date: 30.06.16
  * Time: 15:25
- * @package Katzgrau\KLogger
  */
 
 class ProgressBar {
@@ -18,28 +17,31 @@ class ProgressBar {
 	protected $maxSteps = 0;
 	protected $maxItems = 0;
 
-	protected $stepSize = 0;
-
 	public function init($maxItems, $maxSteps = 100) {
 		$this->currItem = 0;
 		$this->currStep = 0;
 		$this->maxItems = $maxItems;
 		$this->maxSteps = $maxSteps;
 
-		$this->stepSize = $this->maxItems / $this->maxSteps;
-
 		echo '<pre>';
-		echo '|' . str_repeat('-', $this->maxSteps) . '| 100%<br>|';
+		echo '|' . str_repeat('-', $this->maxSteps) . '| 100% (Items: ' . $this->maxItems . ')<br>|';
+                self::showOutput();
 	}
 
 	public function addStep() {
 		$this->currItem++;
-
-		$step = intval($this->currItem / $this->stepSize);
-		if ($step > $this->currStep) {
-			$this->currStep++;
-			self::printState();
-		}
+                
+                // three-sentence: how much is already done; result in perSteps
+                $filledSteps = intval($this->currItem * $this->maxSteps / $this->maxItems);
+                
+                // amount of steps should be filled
+		// $percentFull = intval($this->currItem / $this->stepSize);
+                
+                // $minStep = intval(1 / $step);
+                while ($this->currStep < $filledSteps && $filledSteps <= $this->maxSteps) {
+                    $this->currStep++;
+                    self::printState();
+                }
 
 	}
 
@@ -58,8 +60,7 @@ class ProgressBar {
 	}
 
 	static protected function showOutput() {
-		// ob_flush();
+		ob_flush();
 		flush();
 	}
-
 }
